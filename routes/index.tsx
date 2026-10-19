@@ -9,11 +9,18 @@ export default define.page(function Home() {
         <title>Pdnode Account</title>
       </Head>
       <Header />
-      <div class="flex w-full h-full justify-start items-center flex-col gap-15">
+      <div class="flex w-full h-full justify-start items-center flex-col gap-10">
         <div class="flex justify-center items-center flex-col relative top-10">
           <h1 class="text-4xl font-bold">Pdnode Account</h1>
           <p class="py-6 text-gray-500 text-center">
             Welcome! This is the official introduction page for Pdnode Account.
+          </p>
+        </div>
+
+        <div>
+          <p class="text-gray-500 text-center">
+            <a class="link" href="/login">Login</a> or{" "}
+            <a class="link" href="/register">Register</a> to continue
           </p>
         </div>
 

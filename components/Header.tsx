@@ -4,11 +4,31 @@ export function Header() {
       <div class="flex-1">
         <a class="text-xl font-bold" href="/">Pdnode Account</a>
       </div>
-      <ul>
-        <li>
-          <a href="/terra">Terra</a>
-        </li>
-      </ul>
+      <nav class="flex-none">
+        <ul class="flex flex-row items-center gap-6 text-sm font-medium">
+          <li>
+            <a
+              href="/terra"
+              class="text-base-content/70 hover:text-base-content transition-colors"
+            >
+              Terra
+            </a>
+          </li>
+          <li>
+            <a
+              href="/login"
+              class="text-base-content/70 hover:text-base-content transition-colors"
+            >
+              Log In
+            </a>
+          </li>
+          <li>
+            <a href="/register" class="btn btn-primary btn-sm px-4">
+              Sign Up
+            </a>
+          </li>
+        </ul>
+      </nav>
       {
         /*<div class="flex-none">
         <label class="btn btn-ghost btn-circle swap swap-rotate">
