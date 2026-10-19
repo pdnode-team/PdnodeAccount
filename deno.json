@@ -15,6 +15,7 @@
   "exclude": ["**/_fresh/*"],
   "imports": {
     "@/": "./",
+    "daisyui": "npm:daisyui@^5.7.50",
     "fresh": "jsr:@fresh/core@^2.3.3",
     "preact": "npm:preact@^10.29.1",
     "@preact/signals": "npm:@preact/signals@^2.9.0",
