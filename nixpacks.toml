@@ -9,4 +9,4 @@ cmds = [
 ]
 
 [start]
-cmd = "mkdir -p /app/data && deno run -A npm:drizzle-kit migrate && deno task start"
+cmd = "mkdir -p /app/data && deno task db:generate && deno task start"
