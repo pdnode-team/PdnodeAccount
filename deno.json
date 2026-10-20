@@ -1,5 +1,5 @@
 {
-  "nodeModulesDir": "manual",
+  "nodeModulesDir": "auto",
   "tasks": {
     "check": "deno fmt --check . && deno lint . && deno check",
     "dev": "vite",
@@ -15,7 +15,10 @@
   "exclude": ["**/_fresh/*"],
   "imports": {
     "@/": "./",
+    "@libsql/client": "npm:@libsql/client@^0.18.0",
     "daisyui": "npm:daisyui@^5.7.50",
+    "drizzle-kit": "npm:drizzle-kit@^0.31.11",
+    "drizzle-orm": "npm:drizzle-orm@^0.45.4",
     "fresh": "jsr:@fresh/core@^2.3.3",
     "preact": "npm:preact@^10.29.1",
     "@preact/signals": "npm:@preact/signals@^2.9.0",

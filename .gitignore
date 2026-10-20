@@ -12,3 +12,4 @@ node_modules/
 vendor/
 dist/
 .vite/
+data.db
