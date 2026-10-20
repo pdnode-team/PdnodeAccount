@@ -1,4 +1,10 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const users = sqliteTable("users", {
@@ -16,4 +22,7 @@ export const users = sqliteTable("users", {
     .notNull()
     .default(sql`(strftime('%s', 'now'))`)
     .$onUpdate(() => sql`(strftime('%s', 'now'))`),
-});
+}, (table) => [     
+  uniqueIndex("email_idx").on(table.email),
+  index("nickname_idx").on(table.nickname),
+]);
