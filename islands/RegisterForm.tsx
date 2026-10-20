@@ -6,12 +6,12 @@ export function RegisterForm() {
   const password = useSignal<string>();
   const confirmPassword = useSignal<string>();
   const agreed = useSignal<boolean>(false);
-  const disabledButton = useSignal<boolean>();
   const loading = useSignal(false);
   const error = useSignal<string>();
 
   async function submit(e: Event) {
     e.preventDefault();
+    e.stopPropagation();
 
     if (
       !nickname.value || !email.value || !password.value ||
@@ -49,7 +49,8 @@ export function RegisterForm() {
         return;
       }
 
-      globalThis.location.href = "/login";
+      location.href = "/login";
+      return;
     } catch {
       error.value = "Network error";
     } finally {
@@ -58,10 +59,7 @@ export function RegisterForm() {
   }
 
   return (
-    <form
-      onSubmit={submit}
-      class="space-y-4"
-    >
+    <form class="space-y-4">
       {error.value
         ? (
           <div role="alert" class="alert alert-error alert-soft animate-in">
@@ -163,11 +161,12 @@ export function RegisterForm() {
       </label>
 
       <button
-        disabled={disabledButton}
-        type="submit"
+        disabled={loading}
+        onClick={submit}
+        type="button"
         class="btn btn-primary w-full mt-2"
       >
-        Create Account
+        {loading.value ? "Please wait..." : "Create Account"}
       </button>
     </form>
   );

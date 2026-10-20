@@ -1,4 +1,6 @@
 import { drizzle } from "drizzle-orm/node-sqlite";
-import * as schema from "./schema.ts";
+import { DatabaseSync } from "node:sqlite";
 
-export const db = drizzle("./data/data.db", { schema });
+const sqlite = new DatabaseSync("./data/data.db");
+
+export const db = drizzle({ client: sqlite });

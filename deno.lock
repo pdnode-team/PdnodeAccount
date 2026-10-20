@@ -41,10 +41,9 @@
     "npm:@tailwindcss/vite@^4.1.12": "4.3.2_vite@7.3.6",
     "npm:@types/babel__core@^7.20.5": "7.20.5",
     "npm:bcryptjs@^3.0.3": "3.0.3",
-    "npm:better-sqlite3@^13.0.3": "13.0.3",
     "npm:daisyui@^5.7.50": "5.7.50",
     "npm:drizzle-kit@*": "0.31.11",
-    "npm:drizzle-kit@~0.31.11": "0.31.11",
+    "npm:drizzle-kit@1.0.0-rc.4": "1.0.0-rc.4",
     "npm:drizzle-orm@1.0.0-rc.4": "1.0.0-rc.4_@opentelemetry+api@1.9.1_better-sqlite3@13.0.3_zod@4.6.7",
     "npm:esbuild-wasm@~0.25.11": "0.25.12",
     "npm:esbuild@0.25.7": "0.25.7",
@@ -374,6 +373,9 @@
     },
     "@drizzle-team/brocli@0.10.2": {
       "integrity": "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w=="
+    },
+    "@drizzle-team/brocli@0.12.1": {
+      "integrity": "sha512-yHwomvolVafvUXhy5TdiJVkuNCxXn+bKOs2aWiWEQh/5YaV97Oa/abJz3dmx7lxgIUsUlS1Jl4mEfvJPo3YsVw=="
     },
     "@esbuild-kit/core-utils@3.3.2": {
       "integrity": "sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==",
@@ -918,6 +920,12 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
+    "@js-temporal/polyfill@0.5.1": {
+      "integrity": "sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==",
+      "dependencies": [
+        "jsbi"
+      ]
+    },
     "@opentelemetry/api@1.9.1": {
       "integrity": "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="
     },
@@ -1268,10 +1276,21 @@
     "drizzle-kit@0.31.11": {
       "integrity": "sha512-YCYqxTLIB2OCqf6w9/Vef13baBVbwQIPcbT4Y56AfO6B9ajZhDhD8Jkveg/hJvT/iuMloKD/IYYkyMMNhr7Kqg==",
       "dependencies": [
-        "@drizzle-team/brocli",
+        "@drizzle-team/brocli@0.10.2",
         "@esbuild-kit/esm-loader",
         "esbuild@0.25.12",
         "tsx"
+      ],
+      "bin": true
+    },
+    "drizzle-kit@1.0.0-rc.4": {
+      "integrity": "sha512-KZCpjRyu+oYHLj/UJogfFlOkWhHVkaEI2EOT1U3NDVXUzLoTyPjqwFxwOrlQxsY6jzRyxcz4EacqboGfhEeYrA==",
+      "dependencies": [
+        "@drizzle-team/brocli@0.12.1",
+        "@js-temporal/polyfill",
+        "esbuild@0.25.12",
+        "get-tsconfig",
+        "jiti"
       ],
       "bin": true
     },
@@ -1468,6 +1487,9 @@
     },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
+    },
+    "jsbi@4.3.2": {
+      "integrity": "sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew=="
     },
     "jsesc@3.1.0": {
       "integrity": "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==",
@@ -1719,9 +1741,8 @@
       "npm:@tailwindcss/vite@^4.1.12",
       "npm:@types/babel__core@^7.20.5",
       "npm:bcryptjs@^3.0.3",
-      "npm:better-sqlite3@^13.0.3",
       "npm:daisyui@^5.7.50",
-      "npm:drizzle-kit@~0.31.11",
+      "npm:drizzle-kit@1.0.0-rc.4",
       "npm:drizzle-orm@1.0.0-rc.4",
       "npm:preact@^10.29.1",
       "npm:tailwindcss@^4.1.10",

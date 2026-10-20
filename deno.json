@@ -5,7 +5,10 @@
     "dev": "vite",
     "build": "vite build",
     "start": "deno serve -A _fresh/server.js",
-    "update": "deno run -A -r jsr:@fresh/update ."
+    "update": "deno run -A -r jsr:@fresh/update .",
+    "db:up": "deno run -A --node-modules-dir npm:drizzle-kit@1.0.0-rc.4 up",
+    "db:generate": "deno run -A --node-modules-dir npm:drizzle-kit@1.0.0-rc.4 generate",
+    "db:push": "deno run -A --node-modules-dir npm:drizzle-kit@1.0.0-rc.4 push"
   },
   "lint": {
     "rules": {
@@ -17,7 +20,7 @@
     "@/": "./",
     "bcryptjs": "npm:bcryptjs@^3.0.3",
     "daisyui": "npm:daisyui@^5.7.50",
-    "drizzle-kit": "npm:drizzle-kit@^0.31.11",
+    "drizzle-kit": "npm:drizzle-kit@1.0.0-rc.4",
     "drizzle-orm": "npm:drizzle-orm@1.0.0-rc.4",
     "fresh": "jsr:@fresh/core@^2.3.3",
     "preact": "npm:preact@^10.29.1",
