@@ -1,3 +1,6 @@
 [phases.setup]
 nixpkgsArchive = "e2ccecbf30866802b1db536246e0939eccbd7bfb"
 nixPkgs = ["...", "deno"]
+
+[phases.build]
+cmds = ["deno task build"]
