@@ -41,6 +41,7 @@
     "npm:@remix-run/node-fetch-server@0.12": "0.12.0",
     "npm:@tailwindcss/vite@^4.1.12": "4.3.2_vite@7.3.6",
     "npm:@types/babel__core@^7.20.5": "7.20.5",
+    "npm:bcryptjs@^3.0.3": "3.0.3",
     "npm:daisyui@^5.7.50": "5.7.50",
     "npm:drizzle-kit@*": "0.31.11",
     "npm:drizzle-kit@~0.31.11": "0.31.11",
@@ -54,7 +55,8 @@
     "npm:rollup@^4.55.1": "4.62.2",
     "npm:tailwindcss@^4.1.10": "4.3.2",
     "npm:vite@^7.1.3": "7.3.6",
-    "npm:vite@^7.1.4": "7.3.6"
+    "npm:vite@^7.1.4": "7.3.6",
+    "npm:zod@^4.6.7": "4.6.7"
   },
   "jsr": {
     "@deno/esbuild-plugin@1.2.1": {
@@ -1311,6 +1313,10 @@
       "integrity": "sha512-BSSLZ9/Cjjv7Gtj5B68ZzXcXUg8iOf3fme+FCuh8rC/Go+Kmh8cox7M3A8dolou16s64QjLPOSdngh7GxXvkSw==",
       "bin": true
     },
+    "bcryptjs@3.0.3": {
+      "integrity": "sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==",
+      "bin": true
+    },
     "browserslist@4.28.4": {
       "integrity": "sha512-MTc8i/x9jBQd1iMw2CFGS+rwMa07eYjLR0CCTLDACl9xhxy+nIs3KeML/biicXtk9JrZ6dnnTatmc7ErPXIxqw==",
       "dependencies": [
@@ -1814,6 +1820,9 @@
     },
     "yallist@3.1.1": {
       "integrity": "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="
+    },
+    "zod@4.6.7": {
+      "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg=="
     }
   },
   "workspace": {
@@ -1824,12 +1833,14 @@
       "npm:@preact/signals@^2.9.0",
       "npm:@tailwindcss/vite@^4.1.12",
       "npm:@types/babel__core@^7.20.5",
+      "npm:bcryptjs@^3.0.3",
       "npm:daisyui@^5.7.50",
       "npm:drizzle-kit@~0.31.11",
       "npm:drizzle-orm@~0.45.4",
       "npm:preact@^10.29.1",
       "npm:tailwindcss@^4.1.10",
-      "npm:vite@^7.1.3"
+      "npm:vite@^7.1.3",
+      "npm:zod@^4.6.7"
     ]
   }
 }

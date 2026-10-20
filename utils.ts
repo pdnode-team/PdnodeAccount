@@ -7,3 +7,8 @@ export interface State {
 }
 
 export const define = createDefine<State>();
+
+export function isValidEmail(email: string): boolean {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}

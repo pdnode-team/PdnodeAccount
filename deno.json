@@ -16,6 +16,7 @@
   "imports": {
     "@/": "./",
     "@libsql/client": "npm:@libsql/client@^0.18.0",
+    "bcryptjs": "npm:bcryptjs@^3.0.3",
     "daisyui": "npm:daisyui@^5.7.50",
     "drizzle-kit": "npm:drizzle-kit@^0.31.11",
     "drizzle-orm": "npm:drizzle-orm@^0.45.4",
@@ -26,7 +27,8 @@
     "vite": "npm:vite@^7.1.3",
     "@types/babel__core": "npm:@types/babel__core@^7.20.5",
     "tailwindcss": "npm:tailwindcss@^4.1.10",
-    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.12"
+    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.12",
+    "zod": "npm:zod@^4.6.7"
   },
   "compilerOptions": {
     "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns"],
