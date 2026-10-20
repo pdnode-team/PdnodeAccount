@@ -16,6 +16,7 @@
   "imports": {
     "@/": "./",
     "@libsql/client": "npm:@libsql/client@^0.18.0",
+    "@libsql/linux-x64-gnu": "npm:@libsql/linux-x64-gnu@^0.5.29",
     "bcryptjs": "npm:bcryptjs@^3.0.3",
     "daisyui": "npm:daisyui@^5.7.50",
     "drizzle-kit": "npm:drizzle-kit@^0.31.11",
