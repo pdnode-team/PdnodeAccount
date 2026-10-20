@@ -7,3 +7,6 @@ cmds = [
   "deno install --allow-scripts",
   "deno task build"
 ]
+
+[start]
+cmd = "mkdir -p /app/data && deno run -A npm:drizzle-kit migrate && deno task start"
