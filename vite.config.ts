@@ -7,7 +7,4 @@ export default defineConfig({
     fresh(),
     tailwindcss(),
   ],
-  ssr: {
-    external: ["better-sqlite3"],
-  },
 });
