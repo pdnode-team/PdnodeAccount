@@ -3,8 +3,7 @@ import { createClient } from "@libsql/client/node";
 import * as schema from "./schema.ts";
 
 const client = createClient({
-  url: "file:data.db", // 本地文件
-  // url: ":memory:",   // 内存数据库
+  url: "file:data/data.db",
 });
 
 export const db = drizzle(client, { schema });
