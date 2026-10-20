@@ -7,22 +7,4 @@ export default defineConfig({
     fresh(),
     tailwindcss(),
   ],
-  uild: {
-    rollupOptions: {
-      external: [
-        "@libsql/client",
-        "@libsql/client/node",
-        "@libsql/linux-x64-gnu",
-        "libsql",
-      ],
-    },
-  },
-  ssr: {
-    external: [
-      "@libsql/client",
-      "@libsql/client/node",
-      "@libsql/linux-x64-gnu",
-      "libsql",
-    ],
-  },
 });

@@ -15,8 +15,8 @@
   "exclude": ["**/_fresh/*"],
   "imports": {
     "@/": "./",
-    "@libsql/client": "npm:@libsql/client@^0.18.0",
     "bcryptjs": "npm:bcryptjs@^3.0.3",
+    "better-sqlite3": "npm:better-sqlite3@^13.0.3",
     "daisyui": "npm:daisyui@^5.7.50",
     "drizzle-kit": "npm:drizzle-kit@^0.31.11",
     "drizzle-orm": "npm:drizzle-orm@^0.45.4",
