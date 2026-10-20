@@ -3,4 +3,8 @@ nixpkgsArchive = "e2ccecbf30866802b1db536246e0939eccbd7bfb"
 nixPkgs = ["...", "deno"]
 
 [phases.build]
-cmds = ["deno task build"]
+cmds = [
+  "deno install --allow-scripts",
+  "deno task build",
+  "deno run -A npm:drizzle-kit migrate"
+]
