@@ -7,10 +7,10 @@ export function RegisterForm() {
   const confirmPassword = useSignal<string>();
   const agreed = useSignal<boolean>(false);
   const disabledButton = useSignal<boolean>();
-
+  const loading = useSignal(false);
   const error = useSignal<string>();
 
-  function submit(e: Event) {
+  async function submit(e: Event) {
     e.preventDefault();
 
     if (
@@ -19,6 +19,41 @@ export function RegisterForm() {
     ) {
       error.value = "Please fill in all the fields!";
       return;
+    }
+    if (password.value !== confirmPassword.value) {
+      error.value = "Passwords do not match";
+      return;
+    }
+    if (!agreed.value) {
+      error.value = "Please agree to the terms";
+      return;
+    }
+
+    loading.value = true;
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nickname: nickname.value,
+          email: email.value,
+          password: password.value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        error.value = "Registration failed: " + data.error ||
+          "Registration failed";
+        return;
+      }
+
+      globalThis.location.href = "/login";
+    } catch {
+      error.value = "Network error";
+    } finally {
+      loading.value = false;
     }
   }
 
