@@ -6,6 +6,10 @@ import PocketBase, { ClientResponseError } from "pocketbase";
 const router = useRouter();
 const pb = new PocketBase(import.meta.env.DEV ? "http://127.0.0.1:8090" : "/");
 
+if (pb.authStore.isValid) {
+    router.push("/");
+}
+
 const nickname = ref("");
 const email = ref("");
 const password = ref("");

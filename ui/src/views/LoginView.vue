@@ -6,12 +6,26 @@ import PocketBase, { ClientResponseError } from "pocketbase";
 const router = useRouter();
 const pb = new PocketBase(import.meta.env.DEV ? "http://127.0.0.1:8090" : "/");
 
+if (pb.authStore.isValid) {
+    router.push("/");
+}
+
 const email = ref("");
 const password = ref("");
 const agreed = ref(false);
 
 const loading = ref(false);
 const error = ref("");
+const message = ref("");
+
+const verificationEmailModal = ref<HTMLDialogElement | null>(null);
+
+async function sendVerificationEmail() {
+    await pb.collection("users").requestVerification(email.value);
+    error.value = "";
+    message.value =
+        "Please check your email. If you haven't received it, please check your spam folder or try again later.";
+}
 
 async function handleSubmit() {
     error.value = "";
@@ -33,8 +47,6 @@ async function handleSubmit() {
             .collection("users")
             .authWithPassword(email.value, password.value);
 
-        // await pb.collection("users").requestVerification(email.value);
-
         router.push("/");
     } catch (err: unknown) {
         if (err instanceof ClientResponseError) {
@@ -50,10 +62,9 @@ async function handleSubmit() {
                     "The request doesn't satisfy the collection requirements",
                 )
             ) {
-                // 匹配到了未满足集合认证条件（通常是 users 表配了 verified = true 规则）
                 error.value = "Please verify your email first.";
+                verificationEmailModal.value?.showModal();
             } else if (err.status === 400) {
-                // 普通密码或账号错误
                 error.value = "Invalid email or password.";
             } else {
                 error.value = err.message || "Failed to authenticate.";
@@ -76,6 +87,13 @@ async function handleSubmit() {
             </p>
 
             <form @submit.prevent="handleSubmit" class="space-y-4">
+                <div
+                    v-if="message"
+                    role="alert"
+                    class="alert alert-info alert-soft"
+                >
+                    <span>{{ message }}</span>
+                </div>
                 <div
                     v-if="error"
                     role="alert"
@@ -164,4 +182,30 @@ async function handleSubmit() {
             </p>
         </main>
     </div>
+    <dialog ref="verificationEmailModal" class="modal">
+        <div class="modal-box">
+            <h3 class="text-lg font-bold">Action Required</h3>
+            <p class="py-4">
+                Please verify your email address to ensure system security.
+            </p>
+
+            <div class="modal-action">
+                <button
+                    class="btn"
+                    @click="() => verificationEmailModal?.close()"
+                >
+                    Cancel
+                </button>
+
+                <form method="dialog">
+                    <button
+                        class="btn btn-primary"
+                        @click="sendVerificationEmail"
+                    >
+                        Send Email
+                    </button>
+                </form>
+            </div>
+        </div>
+    </dialog>
 </template>
