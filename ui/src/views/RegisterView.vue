@@ -41,16 +41,14 @@ async function handleSubmit() {
     loading.value = true;
 
     try {
-        // 写入 PocketBase 自带的 users 集合
         await pb.collection("users").create({
             email: email.value,
             password: password.value,
             passwordConfirm: confirmPassword.value,
-            nickname: nickname.value,
+            name: nickname.value,
         });
 
-        // （可选）如果开启了邮箱验证，可在此自动触发验证邮件：
-        // await pb.collection('users').requestVerification(email.value)
+        await pb.collection("users").requestVerification(email.value);
 
         router.push("/login");
     } catch (err: unknown) {
