@@ -1,17 +1,21 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
-	"os"
+
+	_ "pdnode-account/migrations"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/pocketbase/pocketbase/tools/osutils"
-	// enable once you have at least one migration
-	// _ "yourpackage/migrations"
 )
+
+//go:embed all:ui/dist
+var uiFS embed.FS
 
 func main() {
 	app := pocketbase.New()
@@ -24,7 +28,11 @@ func main() {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
-		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
+		distFS, err := fs.Sub(uiFS, "ui/dist")
+		if err != nil {
+			return err
+		}
+		se.Router.GET("/{path...}", apis.Static(distFS, true))
 
 		return se.Next()
 	})
