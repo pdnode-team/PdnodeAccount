@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "golang",
+  "packages": {
+    "go": "1.27",
+    "node": "24",
+    "pnpm": "11"
+  },
+  "steps": {
+    "frontend-build": {
+      "commands": ["cd ui && pnpm install --frozen-lockfile && pnpm run build"]
+    },
+    "build": {
+      "inputs": [{ "step": "frontend-build" }, "..."],
+      "commands": ["..."]
+    }
+  },
+  "deploy": {
+    "startCommand": "./out serve --http=0.0.0.0:8090"
+  }
+}
