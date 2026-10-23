@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserAvatar from "@/components/UserAvatar.vue";
 import { pb } from "@/pb";
 import { computed } from "vue";
 
@@ -37,6 +38,9 @@ const isLogin = computed(() => pb.authStore.isValid);
                     >
                         Sign Up
                     </router-link>
+                </li>
+                <li v-if="isLogin" class="flex justify-center items-center">
+                    <UserAvatar name="pb.authStore.record?.id" :size="36" />
                 </li>
             </ul>
         </nav>
