@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import PocketBase, { ClientResponseError } from "pocketbase";
+import Header from "@/components/Header.vue";
 
 const router = useRouter();
 const pb = new PocketBase(import.meta.env.DEV ? "http://127.0.0.1:8090" : "/");
@@ -79,116 +80,127 @@ async function handleSubmit() {
 </script>
 
 <template>
-    <div class="h-screen w-screen flex justify-center items-center bg-base-100">
-        <main class="bg-base-200 p-10 rounded-xl shadow-lg w-full max-w-md">
-            <h1 class="text-3xl font-bold text-center mb-2">Login</h1>
-            <p class="text-center text-base-content/70 mb-6">
-                Log in your account
-            </p>
+    <Header />
+    <div
+        class="min-h-full my-4 w-full flex items-center justify-center bg-base-100 px-4"
+    >
+        <div
+            class="w-full max-w-4xl flex flex-col md:flex-row items-center gap-10 md:gap-16"
+        >
+            <!-- 左侧：标题 + 文字 -->
+            <div class="w-full md:w-1/2 text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3">Login</h1>
+                <p class="text-lg text-base-content/70">Log in your account</p>
+            </div>
 
-            <form @submit.prevent="handleSubmit" class="space-y-4">
-                <div
-                    v-if="message"
-                    role="alert"
-                    class="alert alert-info alert-soft"
-                >
-                    <span>{{ message }}</span>
-                </div>
-                <div
-                    v-if="error"
-                    role="alert"
-                    class="alert alert-error alert-soft"
-                >
-                    <span>{{ error }}</span>
-                </div>
-
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Email</span>
-                    </label>
-                    <input
-                        v-model.trim="email"
-                        type="email"
-                        name="email"
-                        placeholder="you@example.com"
-                        class="input input-bordered w-full"
-                        required
-                    />
-                </div>
-
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Password</span>
-                    </label>
-                    <input
-                        v-model="password"
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        class="input input-bordered w-full"
-                        minlength="8"
-                        required
-                    />
-                </div>
-
-                <label
-                    class="flex flex-row items-start gap-2 mt-6 cursor-pointer"
-                >
-                    <input
-                        v-model="agreed"
-                        type="checkbox"
-                        name="agree"
-                        class="checkbox checkbox-sm mt-0.5"
-                        required
-                    />
-                    <p class="text-xs text-gray-500 leading-snug">
-                        I have read and agree to the
-                        <a
-                            href="https://pdnode.com/terms"
-                            target="_blank"
-                            class="link"
+            <!-- 右侧：表单 -->
+            <div class="w-full md:w-1/2">
+                <div class="bg-base-200 p-8 rounded-xl shadow-lg">
+                    <form @submit.prevent="handleSubmit" class="space-y-4">
+                        <div
+                            v-if="message"
+                            role="alert"
+                            class="alert alert-info alert-soft"
                         >
-                            Terms of Service
-                        </a>
-                        and
-                        <a
-                            href="https://pdnode.com/privacy"
-                            target="_blank"
-                            class="link"
+                            <span>{{ message }}</span>
+                        </div>
+                        <div
+                            v-if="error"
+                            role="alert"
+                            class="alert alert-error alert-soft"
                         >
-                            Privacy Policy </a
-                        >.
+                            <span>{{ error }}</span>
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            <input
+                                v-model.trim="email"
+                                type="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                class="input input-bordered w-full"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Password</span>
+                            </label>
+                            <input
+                                v-model="password"
+                                type="password"
+                                name="password"
+                                placeholder="••••••••"
+                                class="input input-bordered w-full"
+                                minlength="8"
+                                required
+                            />
+                        </div>
+
+                        <label
+                            class="flex flex-row items-start gap-2 mt-6 cursor-pointer"
+                        >
+                            <input
+                                v-model="agreed"
+                                type="checkbox"
+                                name="agree"
+                                class="checkbox checkbox-sm mt-0.5"
+                                required
+                            />
+                            <p class="text-xs text-gray-500 leading-snug">
+                                I have read and agree to the
+                                <a
+                                    href="https://pdnode.com/terms"
+                                    target="_blank"
+                                    class="link"
+                                >
+                                    Terms of Service
+                                </a>
+                                and
+                                <a
+                                    href="https://pdnode.com/privacy"
+                                    target="_blank"
+                                    class="link"
+                                >
+                                    Privacy Policy </a
+                                >.
+                            </p>
+                        </label>
+
+                        <button
+                            :disabled="loading"
+                            type="submit"
+                            class="btn btn-primary w-full mt-2"
+                        >
+                            <span
+                                v-if="loading"
+                                class="loading loading-spinner loading-xs"
+                            ></span>
+                            {{ loading ? "Please wait..." : "Login" }}
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-4 text-sm">
+                        Don't have a account?
+                        <router-link to="/register" class="link link-primary">
+                            Register
+                        </router-link>
                     </p>
-                </label>
-
-                <button
-                    :disabled="loading"
-                    type="submit"
-                    class="btn btn-primary w-full mt-2"
-                >
-                    <span
-                        v-if="loading"
-                        class="loading loading-spinner loading-xs"
-                    ></span>
-                    {{ loading ? "Please wait..." : "Login" }}
-                </button>
-            </form>
-
-            <p class="text-center mt-4 text-sm">
-                Don't have a account?
-                <router-link to="/register" class="link link-primary"
-                    >Register</router-link
-                >
-            </p>
-        </main>
+                </div>
+            </div>
+        </div>
     </div>
+
     <dialog ref="verificationEmailModal" class="modal">
         <div class="modal-box">
             <h3 class="text-lg font-bold">Action Required</h3>
             <p class="py-4">
                 Please verify your email address to ensure system security.
             </p>
-
             <div class="modal-action">
                 <button
                     class="btn"
@@ -196,7 +208,6 @@ async function handleSubmit() {
                 >
                     Cancel
                 </button>
-
                 <form method="dialog">
                     <button
                         class="btn btn-primary"

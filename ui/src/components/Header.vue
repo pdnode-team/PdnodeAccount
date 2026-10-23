@@ -1,3 +1,5 @@
+<script lang="ts"></script>
+
 <template>
     <header class="navbar bg-base-100 shadow-sm px-4">
         <div class="flex-1">
