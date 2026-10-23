@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pb } from "@/pb";
+import { pb, ClientResponseError } from "@/pb";
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
@@ -22,6 +22,8 @@ const confirmPassword = ref<string>("");
 
 const loading = ref<boolean>(false);
 
+const error = ref<string>("");
+
 onMounted(() => {
   if (!pb.authStore.isValid) {
     close();
@@ -35,10 +37,22 @@ onMounted(() => {
 
 watch(
   [nickname, email, password, confirmPassword],
-  ([newNickname, newEmail]) => {
+  ([newNickname, newEmail, newPassword, newConfirm]) => {
     const user = pb.authStore.record;
+    error.value = "";
 
-    if (newNickname === user?.name && newEmail === user?.email) {
+    if (user?.email !== newEmail && newPassword == "") {
+      error.value =
+        "You must enter your current password when changing your email address!";
+      return;
+    }
+
+    if (
+      newNickname === user?.name &&
+      newEmail === user?.email &&
+      newPassword === "" &&
+      newConfirm === ""
+    ) {
       disable.value = true;
     } else {
       disable.value = false;
@@ -46,25 +60,34 @@ watch(
   },
 );
 
-function save() {
+async function save() {
+  const id = pb.authStore.record?.id;
+  if (!id) return;
+
+  error.value = "";
   loading.value = true;
-  if (password.value !== confirmPassword.value) {
+
+  if (
+    email.value === pb.authStore.record?.email &&
+    password.value !== confirmPassword.value
+  ) {
     error.value = "Passwords do not match";
     loading.value = false;
     return;
   }
 
   try {
-    await pb.collection("users").create({
+    const data: Record<string, any> = {
       email: email.value,
-      password: password.value,
-      passwordConfirm: confirmPassword.value,
       name: nickname.value,
-    });
+    };
 
-    await pb.collection("users").requestVerification(email.value);
+    if (password.value) {
+      data.password = password.value;
+      data.passwordConfirm = confirmPassword.value;
+    }
 
-    router.push("/login");
+    await pb.collection("users").update(pb.authStore.record!.id, data);
   } catch (err: unknown) {
     if (err instanceof ClientResponseError) {
       const fieldErrors = Object.values(err.data?.data || {})
@@ -72,9 +95,7 @@ function save() {
         .filter(Boolean);
 
       error.value =
-        fieldErrors.length > 0
-          ? `Registration failed: ${fieldErrors.join("; ")}`
-          : `Registration failed: ${err.message}`;
+        fieldErrors.length > 0 ? `${fieldErrors.join("; ")}` : `${err.message}`;
     } else {
       error.value = "Network error";
     }
@@ -116,16 +137,19 @@ function close() {
           <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">Password</legend>
             <input
-              type="text"
+              type="password"
               class="input"
               placeholder="Type your password here"
               v-model="password"
             />
           </fieldset>
-          <fieldset class="fieldset flex-1">
+          <fieldset
+            v-if="email === pb.authStore.record?.email"
+            class="fieldset flex-1"
+          >
             <legend class="fieldset-legend">Confirm Password</legend>
             <input
-              type="text"
+              type="password"
               class="input"
               placeholder="Repeat your passsword here"
               v-model="confirmPassword"
@@ -133,6 +157,7 @@ function close() {
           </fieldset>
         </span>
       </div>
+      <p v-if="error" class="text-red-500">{{ error }}</p>
       <div class="modal-action">
         <form method="dialog" class="flex gap-2">
           <button class="btn" @click="close">Close</button>
