@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
+import { pb } from "@/pb";
 import Header from "@/components/Header.vue";
+
+const isLogin = computed(() => pb.authStore.isValid);
 
 onMounted(() => {
     document.title = "Pdnode Account";
@@ -23,7 +26,7 @@ onMounted(() => {
                 </p>
             </div>
 
-            <div>
+            <div v-if="!isLogin">
                 <p class="text-gray-500 text-center">
                     <router-link class="link" to="/login">Login</router-link> or
                     <router-link class="link" to="/register"
