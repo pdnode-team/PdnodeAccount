@@ -1,9 +1,34 @@
 <script setup lang="ts">
 import UserAvatar from "@/components/UserAvatar.vue";
+import UserAvatarDropdown from "@/components/UserAvatarDropdown.vue";
 import { pb } from "@/pb";
-import { computed } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const isLogin = computed(() => pb.authStore.isValid);
+const router = useRouter();
+
+const isLogin = ref(pb.authStore.isValid);
+const currentUser = ref(pb.authStore.record);
+
+let unsubscribeAuth: (() => void) | null = null;
+
+onMounted(() => {
+    unsubscribeAuth = pb.authStore.onChange((token, model) => {
+        isLogin.value = pb.authStore.isValid;
+        currentUser.value = model;
+    });
+});
+
+onUnmounted(() => {
+    if (unsubscribeAuth) {
+        unsubscribeAuth();
+    }
+});
+
+function handleLogout() {
+    pb.authStore.clear();
+    router.push("/login");
+}
 </script>
 
 <template>
@@ -39,8 +64,53 @@ const isLogin = computed(() => pb.authStore.isValid);
                         Sign Up
                     </router-link>
                 </li>
-                <li v-if="isLogin" class="flex justify-center items-center">
-                    <UserAvatar name="pb.authStore.record?.id" :size="36" />
+                <li v-else class="flex justify-center items-center">
+                    <UserAvatarDropdown
+                        :name="
+                            currentUser?.name || currentUser?.email || 'User'
+                        "
+                        align="end"
+                    >
+                        <template #trigger>
+                            <div class="indicator cursor-pointer">
+                                <UserAvatar
+                                    :name="
+                                        currentUser?.name ||
+                                        currentUser?.email ||
+                                        'User'
+                                    "
+                                    :size="36"
+                                />
+                            </div>
+                        </template>
+
+                        <li
+                            class="menu-title px-4 py-2 border-b border-base-200"
+                        >
+                            <span class="font-bold text-base-content">{{
+                                currentUser?.name || "Account"
+                            }}</span>
+                            <span
+                                class="text-xs text-base-content/60 truncate"
+                                >{{ currentUser?.email }}</span
+                            >
+                        </li>
+
+                        <li class="mt-1">
+                            <router-link to="/settings">Settings</router-link>
+                        </li>
+
+                        <div class="divider my-1"></div>
+
+                        <li>
+                            <button
+                                class="text-error hover:bg-error/10"
+                                @click="handleLogout"
+                            >
+                                Sign Out
+                            </button>
+                        </li>
+                    </UserAvatarDropdown>
                 </li>
             </ul>
         </nav>
