@@ -72,7 +72,7 @@ function handleLogout() {
             <template #trigger>
               <div class="indicator cursor-pointer">
                 <UserAvatar
-                  :name="currentUser?.name || currentUser?.email || 'User'"
+                  :id="currentUser?.id || currentUser?.email || 'User'"
                   :size="36"
                 />
               </div>

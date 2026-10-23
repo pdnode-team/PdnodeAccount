@@ -48,6 +48,39 @@ watch(
 
 function save() {
   loading.value = true;
+  if (password.value !== confirmPassword.value) {
+    error.value = "Passwords do not match";
+    loading.value = false;
+    return;
+  }
+
+  try {
+    await pb.collection("users").create({
+      email: email.value,
+      password: password.value,
+      passwordConfirm: confirmPassword.value,
+      name: nickname.value,
+    });
+
+    await pb.collection("users").requestVerification(email.value);
+
+    router.push("/login");
+  } catch (err: unknown) {
+    if (err instanceof ClientResponseError) {
+      const fieldErrors = Object.values(err.data?.data || {})
+        .map((f: any) => f?.message)
+        .filter(Boolean);
+
+      error.value =
+        fieldErrors.length > 0
+          ? `Registration failed: ${fieldErrors.join("; ")}`
+          : `Registration failed: ${err.message}`;
+    } else {
+      error.value = "Network error";
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 
 function close() {
