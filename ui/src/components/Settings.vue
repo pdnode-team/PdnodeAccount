@@ -3,6 +3,8 @@ import { pb, ClientResponseError } from "@/pb";
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
+// TODO: Add info message when updated
+
 const router = useRouter();
 
 const props = defineProps<{
@@ -41,14 +43,6 @@ watch(
   ([newNick, newMail, currentPwd, nextPwd, confirmPwd]) => {
     const user = pb.authStore.record;
     error.value = "";
-
-    // Changing email requires current password
-    if (user?.email !== newMail && !currentPwd) {
-      error.value =
-        "You must enter your current password when changing your email address!";
-      disable.value = true;
-      return;
-    }
 
     // Changing password requires confirmation match
     if (nextPwd && nextPwd !== confirmPwd) {
@@ -136,17 +130,17 @@ function close() {
             v-model="email"
           />
         </fieldset>
-        <fieldset class="fieldset flex-1">
-          <legend class="fieldset-legend">Current Password</legend>
-          <input
-            type="password"
-            class="input w-full"
-            placeholder="Current password"
-            v-model="password"
-          />
-        </fieldset>
 
         <template v-if="email === pb.authStore.record?.email">
+          <fieldset class="fieldset flex-1">
+            <legend class="fieldset-legend">Current Password</legend>
+            <input
+              type="password"
+              class="input w-full"
+              placeholder="Current password"
+              v-model="password"
+            />
+          </fieldset>
           <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">New Password</legend>
             <input
