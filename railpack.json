@@ -8,7 +8,10 @@
   },
   "steps": {
     "frontend-build": {
-      "commands": ["cd ui && pnpm install --frozen-lockfile && pnpm run build"]
+      "inputs": [{ "step": "packages:mise" }, { "local": true }],
+      "commands": [
+        "cd ui && pnpm install --frozen-lockfile && pnpm approve-builds --all && pnpm run build"
+      ]
     },
     "build": {
       "inputs": [{ "step": "frontend-build" }, "..."],
