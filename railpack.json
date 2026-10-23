@@ -7,15 +7,11 @@
     "pnpm": "11"
   },
   "steps": {
-    "frontend-build": {
-      "inputs": [{ "step": "packages:mise" }, { "local": true }],
-      "commands": [
-        "cd ui && pnpm install --frozen-lockfile && pnpm approve-builds --all && pnpm run build"
-      ]
-    },
     "build": {
-      "inputs": [{ "step": "frontend-build" }, "..."],
-      "commands": ["..."]
+      "commands": [
+        "cd ui && pnpm install --frozen-lockfile && pnpm approve-builds --all && pnpm run build",
+        "..."
+      ]
     }
   },
   "deploy": {
