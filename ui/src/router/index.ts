@@ -11,6 +11,11 @@ const router = createRouter({
     { path: '/terra', name: 'terra', component: TerraView },
     { path: '/register', name: 'register', component: RegisterView },
     { path: '/login', name: 'login', component: LoginView },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/HomeView.vue')
+    }
   ],
 })
 

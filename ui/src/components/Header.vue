@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import UserAvatar from "@/components/UserAvatar.vue";
 import UserAvatarDropdown from "@/components/UserAvatarDropdown.vue";
+import Settings from "./Settings.vue";
 import { pb } from "@/pb";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -9,6 +10,8 @@ const router = useRouter();
 
 const isLogin = ref(pb.authStore.isValid);
 const currentUser = ref(pb.authStore.record);
+
+const showSettings = ref(false);
 
 let unsubscribeAuth: (() => void) | null = null;
 
@@ -97,7 +100,11 @@ function handleLogout() {
                         </li>
 
                         <li class="mt-1">
-                            <router-link to="/settings">Settings</router-link>
+                            <router-link
+                                to="/settings"
+                                @click.prevent="showSettings = true"
+                                >Settings</router-link
+                            >
                         </li>
 
                         <div class="divider my-1"></div>
@@ -143,4 +150,5 @@ function handleLogout() {
       </label>
     </div>
     --></header>
+    <Settings v-model:open="showSettings" />
 </template>

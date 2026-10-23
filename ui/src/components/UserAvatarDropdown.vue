@@ -55,7 +55,7 @@ defineExpose({
 
         <!-- Dropdown content menu -->
         <ul
-            class="dropdown-content menu z-[50] mt-2 p-2 shadow-lg bg-base-100 rounded-box border border-base-200"
+            class="dropdown-content menu z-50 mt-2 p-2 shadow-lg bg-base-100 rounded-box border border-base-200"
             :class="props.menuWidth"
             @click="closeMenu"
         >
