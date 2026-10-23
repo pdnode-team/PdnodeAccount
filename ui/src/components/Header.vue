@@ -73,6 +73,7 @@ function handleLogout() {
               <div class="indicator cursor-pointer">
                 <UserAvatar
                   :id="currentUser?.id || currentUser?.email || 'User'"
+                  :name="currentUser?.name"
                   :size="36"
                 />
               </div>

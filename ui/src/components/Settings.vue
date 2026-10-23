@@ -17,8 +17,9 @@ const emit = defineEmits<{
 const disable = ref<boolean>(true);
 const nickname = ref<string>("");
 const email = ref<string>("");
-const password = ref<string>("");
-const confirmPassword = ref<string>("");
+const password = ref<string>(""); // Current / Old Password
+const newPassword = ref<string>(""); // New Password
+const confirmPassword = ref<string>(""); // Confirm New Password
 
 const loading = ref<boolean>(false);
 
@@ -36,58 +37,60 @@ onMounted(() => {
 });
 
 watch(
-  [nickname, email, password, confirmPassword],
-  ([newNickname, newEmail, newPassword, newConfirm]) => {
+  [nickname, email, password, newPassword, confirmPassword],
+  ([newNick, newMail, currentPwd, nextPwd, confirmPwd]) => {
     const user = pb.authStore.record;
     error.value = "";
 
-    if (user?.email !== newEmail && newPassword == "") {
+    // Changing email requires current password
+    if (user?.email !== newMail && !currentPwd) {
       error.value =
         "You must enter your current password when changing your email address!";
+      disable.value = true;
       return;
     }
 
-    if (
-      newNickname === user?.name &&
-      newEmail === user?.email &&
-      newPassword === "" &&
-      newConfirm === ""
-    ) {
+    // Changing password requires confirmation match
+    if (nextPwd && nextPwd !== confirmPwd) {
+      error.value = "New passwords do not match";
       disable.value = true;
-    } else {
-      disable.value = false;
+      return;
     }
+
+    const isUnchanged =
+      newNick === user?.name &&
+      newMail === user?.email &&
+      !currentPwd &&
+      !nextPwd &&
+      !confirmPwd;
+
+    disable.value = isUnchanged;
   },
 );
 
 async function save() {
-  const id = pb.authStore.record?.id;
-  if (!id) return;
+  const user = pb.authStore.record;
+  if (!user?.id) return;
 
   error.value = "";
   loading.value = true;
 
-  if (
-    email.value === pb.authStore.record?.email &&
-    password.value !== confirmPassword.value
-  ) {
-    error.value = "Passwords do not match";
-    loading.value = false;
-    return;
-  }
-
   try {
     const data: Record<string, any> = {
-      email: email.value,
       name: nickname.value,
     };
 
-    if (password.value) {
-      data.password = password.value;
+    if (newPassword.value) {
+      data.oldPassword = password.value;
+      data.password = newPassword.value;
       data.passwordConfirm = confirmPassword.value;
     }
 
-    await pb.collection("users").update(pb.authStore.record!.id, data);
+    await pb.collection("users").update(user.id, data);
+
+    if (email.value !== user.email) {
+      await pb.collection("users").requestEmailChange(email.value);
+    }
   } catch (err: unknown) {
     if (err instanceof ClientResponseError) {
       const fieldErrors = Object.values(err.data?.data || {})
@@ -95,7 +98,7 @@ async function save() {
         .filter(Boolean);
 
       error.value =
-        fieldErrors.length > 0 ? `${fieldErrors.join("; ")}` : `${err.message}`;
+        fieldErrors.length > 0 ? fieldErrors.join("; ") : err.message;
     } else {
       error.value = "Network error";
     }
@@ -133,29 +136,36 @@ function close() {
             v-model="email"
           />
         </fieldset>
-        <span class="flex flex-row gap-2 justify-between">
+        <fieldset class="fieldset flex-1">
+          <legend class="fieldset-legend">Current Password</legend>
+          <input
+            type="password"
+            class="input w-full"
+            placeholder="Current password"
+            v-model="password"
+          />
+        </fieldset>
+
+        <template v-if="email === pb.authStore.record?.email">
           <fieldset class="fieldset flex-1">
-            <legend class="fieldset-legend">Password</legend>
+            <legend class="fieldset-legend">New Password</legend>
             <input
               type="password"
-              class="input"
-              placeholder="Type your password here"
-              v-model="password"
+              class="input w-full"
+              placeholder="New password"
+              v-model="newPassword"
             />
           </fieldset>
-          <fieldset
-            v-if="email === pb.authStore.record?.email"
-            class="fieldset flex-1"
-          >
+          <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">Confirm Password</legend>
             <input
               type="password"
-              class="input"
-              placeholder="Repeat your passsword here"
+              class="input w-full"
+              placeholder="Repeat new password"
               v-model="confirmPassword"
             />
           </fieldset>
-        </span>
+        </template>
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <div class="modal-action">
