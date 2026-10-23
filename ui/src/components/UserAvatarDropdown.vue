@@ -1,3 +1,5 @@
+<!-- Made by Gemini 4, not count time (Because I use online not agent) -->
+<!-- I change part of it -->
 <script setup lang="ts">
 import { ref } from "vue";
 import UserAvatar from "./UserAvatar.vue";

@@ -13,7 +13,7 @@ const currentUser = ref(pb.authStore.record);
 let unsubscribeAuth: (() => void) | null = null;
 
 onMounted(() => {
-    unsubscribeAuth = pb.authStore.onChange((token, model) => {
+    unsubscribeAuth = pb.authStore.onChange((_, model) => {
         isLogin.value = pb.authStore.isValid;
         currentUser.value = model;
     });
