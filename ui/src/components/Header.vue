@@ -1,4 +1,9 @@
-<script lang="ts"></script>
+<script setup lang="ts">
+import { pb } from "@/pb";
+import { computed } from "vue";
+
+const isLogin = computed(() => pb.authStore.isValid);
+</script>
 
 <template>
     <header class="navbar bg-base-100 shadow-sm px-4">
@@ -17,7 +22,7 @@
                         Terra
                     </router-link>
                 </li>
-                <li>
+                <li v-if="!isLogin">
                     <router-link
                         to="/login"
                         class="text-base-content/70 hover:text-base-content transition-colors"
@@ -25,7 +30,7 @@
                         Log In
                     </router-link>
                 </li>
-                <li>
+                <li v-if="!isLogin">
                     <router-link
                         to="/register"
                         class="btn btn-primary btn-sm px-4"
@@ -35,8 +40,6 @@
                 </li>
             </ul>
         </nav>
-
-        <!-- 主题切换器 (DaisyUI theme-controller) -->
         <!--
     <div class="flex-none ml-2">
       <label class="btn btn-ghost btn-circle swap swap-rotate">

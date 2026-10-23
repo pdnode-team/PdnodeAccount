@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import PocketBase, { ClientResponseError } from "pocketbase";
 import Header from "@/components/Header.vue";
+import { pb, ClientResponseError } from "@/pb";
 
 const router = useRouter();
-const pb = new PocketBase(import.meta.env.DEV ? "http://127.0.0.1:8090" : "/");
 
 if (pb.authStore.isValid) {
     router.push("/");
