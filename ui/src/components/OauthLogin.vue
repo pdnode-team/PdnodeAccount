@@ -74,7 +74,7 @@ async function login(provider: string) {
       <span v-else class="loading loading-spinner loading-sm"></span>
     </button>
 
-    <div v-if="error" class="alert alert-error shadow-md w-full">
+    <div v-if="error" class="alert alert-error alert-soft shadow-md w-full">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="stroke-current shrink-0 h-6 w-6"
