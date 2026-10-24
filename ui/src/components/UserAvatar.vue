@@ -4,8 +4,8 @@ import { computed } from "vue";
 import { stringToHslColor, getAvatarInitial } from "@/utils/color";
 
 interface Props {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   size?: number; // Size in pixels, defaults to 40
 }
 
