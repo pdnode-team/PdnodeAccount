@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { pb, ClientResponseError } from "@/pb";
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 // TODO: Add info message when updated
@@ -25,18 +25,19 @@ const confirmPassword = ref<string>(""); // Confirm New Password
 
 const loading = ref<boolean>(false);
 
+const info = ref<string>("");
 const error = ref<string>("");
 
-onMounted(() => {
-  if (!pb.authStore.isValid) {
-    close();
-    return;
-  }
-  const user = pb.authStore.record;
-  console.log(user);
-  nickname.value = user?.name;
-  email.value = user?.email;
-});
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen && pb.authStore.isValid) {
+      const user = pb.authStore.record;
+      nickname.value = user?.name || "";
+      email.value = user?.email || "";
+    }
+  },
+);
 
 watch(
   [nickname, email, password, newPassword, confirmPassword],
@@ -81,9 +82,11 @@ async function save() {
     }
 
     await pb.collection("users").update(user.id, data);
+    info.value = "Updated!";
 
     if (email.value !== user.email) {
       await pb.collection("users").requestEmailChange(email.value);
+      info.value = "Please check your new email address to verify it.";
     }
   } catch (err: unknown) {
     if (err instanceof ClientResponseError) {
@@ -163,7 +166,9 @@ function close() {
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <div class="modal-action">
-        <form method="dialog" class="flex gap-2">
+        <form method="dialog" class="flex gap-2 justify-center items-center">
+          <p v-if="info" class="text-green-500 text-center">{{ info }}</p>
+
           <button class="btn" @click="close">Close</button>
 
           <Transition name="fade" mode="out-in">
