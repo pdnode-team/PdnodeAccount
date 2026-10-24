@@ -5,17 +5,17 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
 # Features
 
 - [x] Register
-- [ ] Login
+- [x] Login
 - [ ] Passkey
-- [ ] Oauth
+- [x] Oauth
   - [ ] Google
-  - [ ] Github
-  - [ ] Discord
-  - [ ] HackClub
+  - [x] Github
+  - [x] Discord
+  - [x] HackClub
 - [ ] MFA / 2FA
 - [ ] Admin / Mod Panel
 - [ ] User Lifecycle
 - [ ] Profile Page
-  - [ ] Change
+  - [x] Change
 - [ ] Delete Account
 - [ ] Audit Logs
