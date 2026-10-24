@@ -36,25 +36,29 @@ func main() {
 			return e.Next()
 		}
 
-		slackID, _ := raw["slack_id"].(string)
-
-		if slackID == "" {
+		slackID, ok := raw["slack_id"].(string)
+		if !ok || slackID == "" {
+			app.Logger().Warn("slack_id not found or not string", "raw", raw)
 			return e.Next()
 		}
 
 		if e.IsNewRecord {
 			if e.CreateData == nil {
-				e.CreateData = map[string]any{}
+				e.CreateData = make(map[string]any)
 			}
-
 			e.CreateData["slack_id"] = slackID
+			app.Logger().Info("set slack_id for new user", "slack_id", slackID)
 		} else if e.Record != nil {
-
 			e.Record.Set("slack_id", slackID)
+			if err := app.Save(e.Record); err != nil {
+				app.Logger().Error("failed to save slack_id", "error", err)
+			} else {
+				app.Logger().Info("updated slack_id for existing user", "slack_id", slackID)
+			}
 		}
+
 		return e.Next()
 	})
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		distFS, err := fs.Sub(uiFS, "ui/dist")

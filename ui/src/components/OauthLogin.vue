@@ -15,7 +15,7 @@ async function login(provider: string) {
       provider,
       scopes:
         provider === "oidc"
-          ? ["openid", "profile", "email", "name"]
+          ? ["openid", "profile", "email", "name", "slack_id"]
           : undefined,
     });
     router.push("/");
