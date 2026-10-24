@@ -2,7 +2,8 @@
 import { pb, ClientResponseError } from "@/pb";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
-
+import type { RecordModel } from "pocketbase";
+import OAuthCard from "./OauthCard.vue";
 // TODO: Add info message when updated
 
 const router = useRouter();
@@ -28,13 +29,19 @@ const loading = ref<boolean>(false);
 const info = ref<string>("");
 const error = ref<string>("");
 
+const externalAuths = ref<RecordModel[]>([]);
+
 watch(
   () => props.open,
-  (isOpen) => {
+  async (isOpen) => {
     if (isOpen && pb.authStore.isValid) {
       const user = pb.authStore.record;
       nickname.value = user?.name || "";
       email.value = user?.email || "";
+      externalAuths.value = await pb.collection("_externalAuths").getFullList({
+        filter: `recordRef = "${user?.id}"`,
+      });
+      console.log(externalAuths.value);
     }
   },
 );
@@ -62,6 +69,28 @@ watch(
     disable.value = isUnchanged;
   },
 );
+
+function providerName(provider: string) {
+  const map: Record<string, string> = {
+    oidc: "Hack Club",
+    github: "GitHub",
+    discord: "Discord",
+  };
+  return map[provider] || provider;
+}
+
+// TODO: Replace alert()
+async function unlink(item: any) {
+  if (!confirm(`Are you sure you want unlink ${item.provider}?`)) return;
+
+  try {
+    await pb.collection("_externalAuths").delete(item.id);
+    externalAuths.value = externalAuths.value.filter((a) => a.id !== item.id);
+  } catch (err) {
+    console.error(err);
+    alert("Unlink Failed");
+  }
+}
 
 async function save() {
   const user = pb.authStore.record;
@@ -111,7 +140,7 @@ function close() {
 </script>
 <template>
   <dialog id="settings_modal" class="modal" :class="{ 'modal-open': open }">
-    <div class="modal-box">
+    <div class="modal-box max-h-[calc(100vh-5rem)]">
       <h3 class="text-lg font-bold">Settings</h3>
       <div class="flex flex-col">
         <p class="font-bold">Account Information</p>
@@ -163,6 +192,17 @@ function close() {
             />
           </fieldset>
         </template>
+      </div>
+      <div class="flex flex-col gap-1" v-if="externalAuths.length > 0">
+        <p class="font-bold">OAuth</p>
+        <OAuthCard
+          v-for="item in externalAuths"
+          :key="item.id"
+          :provider="item.provider"
+          :display-name="providerName(item.provider)"
+          :provider-id="item.providerId"
+          @delete="unlink(item)"
+        />
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <div class="modal-action">
