@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { pb, ClientResponseError } from "@/pb";
 import Header from "@/components/Header.vue";
+import OauthLogin from "@/components/OauthLogin.vue";
 
 const router = useRouter();
 if (pb.authStore.isValid) {
@@ -166,6 +167,10 @@ async function handleSubmit() {
               {{ loading ? "Please wait..." : "Login" }}
             </button>
           </form>
+
+          <hr class="my-4 text-base-100" />
+
+          <OauthLogin />
 
           <p class="text-center mt-4 text-sm">
             Don't have a account?

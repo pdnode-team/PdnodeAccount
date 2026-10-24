@@ -26,6 +26,35 @@ func main() {
 		Automigrate: osutils.IsProbablyGoRun(),
 	})
 
+	app.OnRecordAuthWithOAuth2Request("users").BindFunc(func(e *core.RecordAuthWithOAuth2RequestEvent) error {
+		if e.ProviderName != "oidc" {
+			return e.Next()
+		}
+
+		raw := e.OAuth2User.RawUser
+		if raw == nil {
+			return e.Next()
+		}
+
+		slackID, _ := raw["slack_id"].(string)
+
+		if slackID == "" {
+			return e.Next()
+		}
+
+		if e.IsNewRecord {
+			if e.CreateData == nil {
+				e.CreateData = map[string]any{}
+			}
+
+			e.CreateData["slack_id"] = slackID
+		} else if e.Record != nil {
+
+			e.Record.Set("slack_id", slackID)
+		}
+		return e.Next()
+	})
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		distFS, err := fs.Sub(uiFS, "ui/dist")
