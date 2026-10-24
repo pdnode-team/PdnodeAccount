@@ -191,6 +191,12 @@ function close() {
               v-model="confirmPassword"
             />
           </fieldset>
+          <button
+            class="btn btn-error btn-soft mt-4"
+            @click="() => router.push('/delete-account')"
+          >
+            Delete your account
+          </button>
         </template>
       </div>
       <div class="flex flex-col gap-1" v-if="externalAuths.length > 0">
