@@ -71,6 +71,21 @@ func main() {
 			return e.BadRequestError("invalid user", nil)
 		}
 
+		var body struct {
+			Password string `json:"password"`
+		}
+		if err := e.BindBody(&body); err != nil || body.Password == "" {
+			return e.BadRequestError("password required", err)
+		}
+
+		user, err := app.FindRecordById("users", e.Auth.Id)
+		if err != nil {
+			return err
+		}
+		if !user.ValidatePassword(body.Password) {
+			return e.BadRequestError("invalid password", nil)
+		}
+
 		token := security.RandomString(32)
 		e.Record.Set("token", token)
 		e.Record.Set("expiresAt", time.Now().UTC().Add(24*time.Hour))
@@ -81,23 +96,15 @@ func main() {
 			return err
 		}
 
-		user, _ := app.FindRecordById("users", e.Auth.Id)
 		confirmURL := fmt.Sprintf("%s/confirm-delete?token=%s", app.Settings().Meta.AppURL, token)
-
 		message := &mailer.Message{
-			From: mail.Address{
-				Address: app.Settings().Meta.SenderAddress,
-			},
-			To: []mail.Address{
-				{Address: user.Email()},
-			},
+			From:    mail.Address{Address: app.Settings().Meta.SenderAddress},
+			To:      []mail.Address{{Address: user.Email()}},
 			Subject: "Confirm account deletion",
-			HTML:    fmt.Sprintf(`<p>Click the link below to confirm the deletion of your account:</p><p><a href="%s">%s</a></p><p>Valid for 24 hours.</p>`, confirmURL, confirmURL),
+			HTML:    fmt.Sprintf(`<p>Click to confirm account deletion:</p><p><a href="%s">%s</a></p><p>Valid for 24 hours.</p>`, confirmURL, confirmURL),
 		}
-
 		return app.NewMailClient().Send(message)
 	})
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		distFS, err := fs.Sub(uiFS, "ui/dist")
@@ -107,11 +114,10 @@ func main() {
 		se.Router.GET("/{path...}", apis.Static(distFS, true))
 
 		se.Router.POST("/api/confirm-delete", func(e *core.RequestEvent) error {
-			data := struct {
-				Token string `json:"token"` // 必须加双引号
-			}{}
-
-			if err := e.BindBody(&data); err != nil {
+			var data struct {
+				Token string `json:"token"`
+			}
+			if err := e.BindBody(&data); err != nil || data.Token == "" {
 				return e.BadRequestError("invalid body", err)
 			}
 
@@ -124,28 +130,26 @@ func main() {
 				return e.NotFoundError("invalid or expired token", err)
 			}
 
-			userId := record.GetString("user")
-			user, err := app.FindRecordById("users", userId)
+			user, err := app.FindRecordById("users", record.GetString("user"))
 			if err != nil {
 				return err
 			}
-
-			user.Set("deletedAt", time.Now())
+			user.Set("deletedAt", time.Now().UTC())
 			user.Set("email", fmt.Sprintf("deleted_%s@deleted.local", user.Id))
 			user.Set("name", "Deleted User")
 			user.Set("slack_id", "")
-
 			if err := app.Save(user); err != nil {
 				return err
 			}
 
 			record.Set("confirmed", true)
 			record.Set("used", true)
-			app.Save(record)
+			if err := app.Save(record); err != nil {
+				return err
+			}
 
 			return e.JSON(200, map[string]bool{"success": true})
 		})
-
 		return se.Next()
 	})
 
