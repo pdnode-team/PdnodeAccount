@@ -2,16 +2,22 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
+	"net/mail"
+	"time"
 
 	_ "pdnode-account/migrations"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+	"github.com/pocketbase/pocketbase/tools/mailer"
 	"github.com/pocketbase/pocketbase/tools/osutils"
+	"github.com/pocketbase/pocketbase/tools/security"
 )
 
 //go:embed all:ui/dist
@@ -59,6 +65,39 @@ func main() {
 
 		return e.Next()
 	})
+
+	app.OnRecordCreateRequest("delete_requests").BindFunc(func(e *core.RecordRequestEvent) error {
+		if e.Auth == nil || e.Record.GetString("user") != e.Auth.Id {
+			return e.BadRequestError("invalid user", nil)
+		}
+
+		token := security.RandomString(32)
+		e.Record.Set("token", token)
+		e.Record.Set("expiresAt", time.Now().UTC().Add(24*time.Hour))
+		e.Record.Set("confirmed", false)
+		e.Record.Set("used", false)
+
+		if err := e.Next(); err != nil {
+			return err
+		}
+
+		user, _ := app.FindRecordById("users", e.Auth.Id)
+		confirmURL := fmt.Sprintf("%s/confirm-delete?token=%s", app.Settings().Meta.AppURL, token)
+
+		message := &mailer.Message{
+			From: mail.Address{
+				Address: app.Settings().Meta.SenderAddress,
+			},
+			To: []mail.Address{
+				{Address: user.Email()},
+			},
+			Subject: "Confirm account deletion",
+			HTML:    fmt.Sprintf(`<p>Click the link below to confirm the deletion of your account:</p><p><a href="%s">%s</a></p><p>Valid for 24 hours.</p>`, confirmURL, confirmURL),
+		}
+
+		return app.NewMailClient().Send(message)
+	})
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		distFS, err := fs.Sub(uiFS, "ui/dist")
@@ -66,6 +105,46 @@ func main() {
 			return err
 		}
 		se.Router.GET("/{path...}", apis.Static(distFS, true))
+
+		se.Router.POST("/api/confirm-delete", func(e *core.RequestEvent) error {
+			data := struct {
+				Token string `json:"token"` // 必须加双引号
+			}{}
+
+			if err := e.BindBody(&data); err != nil {
+				return e.BadRequestError("invalid body", err)
+			}
+
+			record, err := app.FindFirstRecordByFilter(
+				"delete_requests",
+				"token = {:token} && confirmed = false && used = false && expiresAt > {:now}",
+				dbx.Params{"token": data.Token, "now": time.Now().UTC()},
+			)
+			if err != nil {
+				return e.NotFoundError("invalid or expired token", err)
+			}
+
+			userId := record.GetString("user")
+			user, err := app.FindRecordById("users", userId)
+			if err != nil {
+				return err
+			}
+
+			user.Set("deletedAt", time.Now())
+			user.Set("email", fmt.Sprintf("deleted_%s@deleted.local", user.Id))
+			user.Set("name", "Deleted User")
+			user.Set("slack_id", "")
+
+			if err := app.Save(user); err != nil {
+				return err
+			}
+
+			record.Set("confirmed", true)
+			record.Set("used", true)
+			app.Save(record)
+
+			return e.JSON(200, map[string]bool{"success": true})
+		})
 
 		return se.Next()
 	})
