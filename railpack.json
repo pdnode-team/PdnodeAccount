@@ -15,6 +15,6 @@
     }
   },
   "deploy": {
-    "startCommand": "./out serve --http=0.0.0.0:8090"
+    "startCommand": "./out migrate up && ./out serve --http=0.0.0.0:8090"
   }
 }
