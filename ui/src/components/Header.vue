@@ -44,18 +44,17 @@ function handleLogout() {
     <nav class="flex-none">
       <ul class="flex flex-row items-center gap-6 text-sm font-medium">
         <li>
-          <router-link
-            to="/terra"
-            class="text-base-content/70 hover:text-base-content transition-colors"
-          >
+          <router-link to="/terra" class="text-base-content/70 hover:text-base-content transition-colors">
             Terra
           </router-link>
         </li>
+        <li>
+          <router-link to="/help" class="text-base-content/70 hover:text-base-content transition-colors">
+            Help
+          </router-link>
+        </li>
         <li v-if="!isLogin">
-          <router-link
-            to="/login"
-            class="text-base-content/70 hover:text-base-content transition-colors"
-          >
+          <router-link to="/login" class="text-base-content/70 hover:text-base-content transition-colors">
             Log In
           </router-link>
         </li>
@@ -65,46 +64,35 @@ function handleLogout() {
           </router-link>
         </li>
         <li v-else class="flex justify-center items-center">
-          <UserAvatarDropdown
-            :name="currentUser?.name || currentUser?.email || 'User'"
-            align="end"
-          >
+          <UserAvatarDropdown :name="currentUser?.name || currentUser?.email || 'User'" align="end">
             <template #trigger>
               <div class="indicator cursor-pointer">
-                <UserAvatar
-                  :id="currentUser?.id || currentUser?.email || 'User'"
-                  :name="currentUser?.name"
-                  :size="36"
-                />
+                <UserAvatar :id="currentUser?.id || currentUser?.email || 'User'" :name="currentUser?.name"
+                  :size="36" />
               </div>
             </template>
 
-            <li class="menu-title px-4 py-2 border-b border-base-200">
-              <span class="font-bold text-base-content">{{
-                currentUser?.name || "Account"
-              }}</span>
-              <span class="text-xs text-base-content/60 truncate">{{
-                currentUser?.email
-              }}</span>
-            </li>
+        <li class="menu-title px-4 py-2 border-b border-base-200">
+          <span class="font-bold text-base-content">{{
+            currentUser?.name || "Account"
+            }}</span>
+          <span class="text-xs text-base-content/60 truncate">{{
+            currentUser?.email
+            }}</span>
+        </li>
 
-            <li class="mt-1">
-              <router-link to="/settings" @click.prevent="showSettings = true"
-                >Settings</router-link
-              >
-            </li>
+        <li class="mt-1">
+          <router-link to="/settings" @click.prevent="showSettings = true">Settings</router-link>
+        </li>
 
-            <div class="divider my-1"></div>
+        <div class="divider my-1"></div>
 
-            <li>
-              <button
-                class="text-error hover:bg-error/10"
-                @click="handleLogout"
-              >
-                Sign Out
-              </button>
-            </li>
-          </UserAvatarDropdown>
+        <li>
+          <button class="text-error hover:bg-error/10" @click="handleLogout">
+            Sign Out
+          </button>
+        </li>
+        </UserAvatarDropdown>
         </li>
       </ul>
     </nav>

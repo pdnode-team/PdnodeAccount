@@ -146,69 +146,35 @@ function close() {
         <p class="font-bold">Account Information</p>
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Nickname</legend>
-          <input
-            type="text"
-            class="input w-full"
-            placeholder="Type your nickname here"
-            v-model="nickname"
-          />
+          <input type="text" class="input w-full" placeholder="Type your nickname here" v-model="nickname" />
         </fieldset>
         <fieldset class="fieldset">
           <legend class="fieldset-legend">Email</legend>
-          <input
-            type="text"
-            class="input w-full"
-            placeholder="Type your email here"
-            v-model="email"
-          />
+          <input type="text" class="input w-full" placeholder="Type your email here" v-model="email" />
         </fieldset>
 
         <template v-if="email === pb.authStore.record?.email">
           <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">Current Password</legend>
-            <input
-              type="password"
-              class="input w-full"
-              placeholder="Current password"
-              v-model="password"
-            />
+            <input type="password" class="input w-full" placeholder="Current password" v-model="password" />
           </fieldset>
           <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">New Password</legend>
-            <input
-              type="password"
-              class="input w-full"
-              placeholder="New password"
-              v-model="newPassword"
-            />
+            <input type="password" class="input w-full" placeholder="New password" v-model="newPassword" />
           </fieldset>
           <fieldset class="fieldset flex-1">
             <legend class="fieldset-legend">Confirm Password</legend>
-            <input
-              type="password"
-              class="input w-full"
-              placeholder="Repeat new password"
-              v-model="confirmPassword"
-            />
+            <input type="password" class="input w-full" placeholder="Repeat new password" v-model="confirmPassword" />
           </fieldset>
-          <button
-            class="btn btn-error btn-soft mt-4"
-            @click="() => router.push('/delete-account')"
-          >
+          <button class="btn btn-error btn-soft mt-4" @click="() => router.push('/delete-account')">
             Delete your account
           </button>
         </template>
       </div>
-      <div class="flex flex-col gap-1" v-if="externalAuths.length > 0">
+      <div class="flex flex-col gap-1 mt-4" v-if="externalAuths.length > 0">
         <p class="font-bold">OAuth</p>
-        <OAuthCard
-          v-for="item in externalAuths"
-          :key="item.id"
-          :provider="item.provider"
-          :display-name="providerName(item.provider)"
-          :provider-id="item.providerId"
-          @delete="unlink(item)"
-        />
+        <OAuthCard v-for="item in externalAuths" :key="item.id" :provider="item.provider"
+          :display-name="providerName(item.provider)" :provider-id="item.providerId" @delete="unlink(item)" />
       </div>
       <p v-if="error" class="text-red-500">{{ error }}</p>
       <div class="modal-action">
@@ -218,21 +184,10 @@ function close() {
           <button class="btn" @click="close">Close</button>
 
           <Transition name="fade" mode="out-in">
-            <button
-              v-if="!loading"
-              key="save"
-              class="btn btn-primary"
-              :disabled="disable"
-              @click="save"
-            >
+            <button v-if="!loading" key="save" class="btn btn-primary" :disabled="disable" @click="save">
               Save
             </button>
-            <button
-              v-else
-              key="loading"
-              class="btn btn-primary min-w-16"
-              disabled
-            >
+            <button v-else key="loading" class="btn btn-primary min-w-16" disabled>
               <span class="loading loading-spinner loading-md"></span>
             </button>
           </Transition>
@@ -250,6 +205,7 @@ function close() {
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

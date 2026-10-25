@@ -26,6 +26,11 @@ const router = createRouter({
       name: 'confirm-delete',
       component: () => import('@/views/ConfirmDelete.vue')
     },
+    {
+      path: '/help',
+      name: 'help',
+      component: () => import('@/views/Help.vue')
+    },
   ],
 })
 
