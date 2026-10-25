@@ -16,8 +16,8 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
 - [ ] MFA / 2FA
 - [ ] Admin / Mod Panel
 - [ ] User Lifecycle
-- [ ] Profile Page
+- [ ] Profile Page --- Working
   - [x] Change
 - [ ] Oauth IDP
-- [ ] Delete Account
+- [x] Delete Account
 - [ ] Audit Logs
