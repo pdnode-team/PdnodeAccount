@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import UserAvatar from "@/components/UserAvatar.vue";
 import UserAvatarDropdown from "@/components/UserAvatarDropdown.vue";
-import Settings from "./Settings.vue";
 import { pb } from "@/pb";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import Settings from "./Settings.vue";
 
 const router = useRouter();
 
@@ -83,6 +83,10 @@ function handleLogout() {
 
         <li class="mt-1">
           <router-link to="/settings" @click.prevent="showSettings = true">Settings</router-link>
+        </li>
+
+        <li class="mt-1">
+          <router-link :to="'/@' + currentUser?.id" @click.prevent="showSettings = true">Public Profile</router-link>
         </li>
 
         <div class="divider my-1"></div>
