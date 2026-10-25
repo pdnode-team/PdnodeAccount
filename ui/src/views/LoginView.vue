@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { pb, ClientResponseError } from "@/pb";
 import Header from "@/components/Header.vue";
 import OauthLogin from "@/components/OauthLogin.vue";
+import { ClientResponseError, pb } from "@/pb";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 if (pb.authStore.isValid) {
@@ -63,7 +63,7 @@ async function handleSubmit() {
         error.value = "Please verify your email first.";
         verificationEmailModal.value?.showModal();
       } else if (err.status === 400) {
-        error.value = "Invalid email or password.";
+        error.value = 'Invalid email or password. <a href="/forget-password" class="link link-primary">Forget Password?</a>';
       } else {
         error.value = err.message || "Failed to authenticate.";
       }
@@ -78,12 +78,8 @@ async function handleSubmit() {
 
 <template>
   <Header />
-  <div
-    class="min-h-full my-4 w-full flex items-center justify-center bg-base-100 px-4"
-  >
-    <div
-      class="w-full max-w-4xl flex flex-col md:flex-row items-center gap-10 md:gap-16"
-    >
+  <div class="min-h-full my-4 w-full flex items-center justify-center bg-base-100 px-4">
+    <div class="w-full max-w-4xl flex flex-col md:flex-row items-center gap-10 md:gap-16">
       <div class="w-full md:w-1/2 text-center md:text-left">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Login</h1>
         <p class="text-lg text-base-content/70">Log in your account</p>
@@ -91,79 +87,44 @@ async function handleSubmit() {
       <div class="w-full md:w-1/2">
         <div class="bg-base-200 p-8 rounded-xl shadow-lg">
           <form @submit.prevent="handleSubmit" class="space-y-4">
-            <div
-              v-if="message"
-              role="alert"
-              class="alert alert-info alert-soft"
-            >
+            <div v-if="message" role="alert" class="alert alert-info alert-soft">
               <span>{{ message }}</span>
             </div>
             <div v-if="error" role="alert" class="alert alert-error alert-soft">
-              <span>{{ error }}</span>
+              <span v-html="error"></span>
             </div>
 
             <div class="form-control">
               <label class="label">
                 <span class="label-text">Email</span>
               </label>
-              <input
-                v-model.trim="email"
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                class="input input-bordered w-full"
-                required
-              />
+              <input v-model.trim="email" type="email" name="email" placeholder="you@example.com"
+                class="input input-bordered w-full" required />
             </div>
 
             <div class="form-control">
               <label class="label">
                 <span class="label-text">Password</span>
               </label>
-              <input
-                v-model="password"
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                class="input input-bordered w-full"
-                minlength="8"
-                required
-              />
+              <input v-model="password" type="password" name="password" placeholder="••••••••"
+                class="input input-bordered w-full" minlength="8" required />
             </div>
 
             <label class="flex flex-row items-start gap-2 mt-6 cursor-pointer">
-              <input
-                v-model="agreed"
-                type="checkbox"
-                name="agree"
-                class="checkbox checkbox-sm mt-0.5"
-                required
-              />
+              <input v-model="agreed" type="checkbox" name="agree" class="checkbox checkbox-sm mt-0.5" required />
               <p class="text-xs text-gray-500 leading-snug">
                 I have read and agree to the
                 <a href="https://pdnode.com/terms" target="_blank" class="link">
                   Terms of Service
                 </a>
                 and
-                <a
-                  href="https://pdnode.com/privacy"
-                  target="_blank"
-                  class="link"
-                >
-                  Privacy Policy </a
-                >.
+                <a href="https://pdnode.com/privacy" target="_blank" class="link">
+                  Privacy Policy </a>.
               </p>
             </label>
 
-            <button
-              :disabled="loading"
-              type="submit"
-              class="btn btn-primary w-full mt-2"
-            >
-              <span
-                v-if="loading"
-                class="loading loading-spinner loading-xs"
-              ></span>
+            <button :disabled="loading" type="submit" class="btn btn-primary w-full mt-2">
+              <span v-if="loading" class="loading loading-spinner loading-xs"></span>
               {{ loading ? "Please wait..." : "Login" }}
             </button>
           </form>
@@ -176,6 +137,12 @@ async function handleSubmit() {
             Don't have a account?
             <router-link to="/register" class="link link-primary">
               Register
+            </router-link>
+          </p>
+          <p class="text-center mt-1 text-sm">
+            Like to log in with one-time password?
+            <router-link to="/otp" class="link link-primary">
+              OTP
             </router-link>
           </p>
         </div>

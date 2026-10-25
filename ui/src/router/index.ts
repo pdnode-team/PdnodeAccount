@@ -41,6 +41,11 @@ const router = createRouter({
       name: "profile",
       component: () => import("@/views/ProfileView.vue"),
     },
+    {
+      path: "/otp",
+      name: "profile",
+      component: () => import("@/views/OTPView.vue"),
+    },
   ],
 });
 

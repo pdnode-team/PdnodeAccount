@@ -21,3 +21,5 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
 - [x] Oauth IDP --- Working
 - [x] Delete Account
 - [ ] Audit Logs
+- [ ] Easter egg
+- [ ] OTP
