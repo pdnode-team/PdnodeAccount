@@ -1,0 +1,3 @@
+[submodule "pocketbase-ext-oauth2"]
+	path = pocketbase-ext-oauth2
+	url = https://github.com/pdnode-team/pocketbase-ext-oauth2.git
