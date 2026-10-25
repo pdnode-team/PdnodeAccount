@@ -23,20 +23,15 @@ onMounted(() => {
 
 async function submit() {
   disable.value = true;
+  message.value = "";
   try {
     await pb.collection("delete_requests").create({
       user: pb.authStore.record?.id,
       password: password.value,
     });
   } catch (err: any) {
-    console.log("full error:", err);
-    console.log("status:", err.status);
-    console.log("message:", err.message);
-    console.log("response:", err.response);
-    console.log("data:", err.data);
-    if (err.status === 400 && err.message?.includes("invalid password")) {
+    if (err.status === 400 && err.message?.includes("Invalid password")) {
       message.value = "Please enter the correct password.";
-      console.log(67);
     }
     disable.value = false;
     return;
