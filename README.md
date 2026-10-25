@@ -18,6 +18,6 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
 - [ ] User Lifecycle
 - [x] Profile Page
   - [x] Change
-- [ ] Oauth IDP --- Working
+- [x] Oauth IDP --- Working
 - [x] Delete Account
 - [ ] Audit Logs
