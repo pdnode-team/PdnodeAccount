@@ -22,4 +22,4 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
 - [x] Delete Account
 - [ ] Audit Logs
 - [ ] Easter egg
-- [ ] OTP
+- [x] OTP
