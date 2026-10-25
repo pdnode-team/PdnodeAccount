@@ -2,7 +2,7 @@ module pdnode-account
 
 go 1.27.0
 
-replace github.com/benjamesfleming/pocketbase-ext-oauth2 => ./pocketbase-ext-oauth2
+replace github.com/benjamesfleming/pocketbase-ext-oauth2 => github.com/pdnode-team/pocketbase-ext-oauth2 v0.0.0-20260713201815-86e98ddb3d88
 
 require (
 	github.com/benjamesfleming/pocketbase-ext-oauth2 v0.0.0-20260713201815-86e98ddb3d88
