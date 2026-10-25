@@ -5,6 +5,8 @@ import { pb } from "@/pb";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import Settings from "./Settings.vue";
+import { recordLogoClick } from "@/utils/easterEgg";
+import { isTerraWorker } from "@/utils/terraAuth";
 
 const router = useRouter();
 
@@ -37,13 +39,17 @@ function handleLogout() {
 <template>
   <header class="navbar bg-base-100 shadow-sm px-4">
     <div class="flex-1">
-      <router-link to="/" class="text-xl font-bold">
+      <router-link
+        to="/"
+        class="text-xl font-bold select-none transition-transform active:scale-95"
+        @click="isTerraWorker ? recordLogoClick() : undefined"
+      >
         Pdnode Account
       </router-link>
     </div>
     <nav class="flex-none">
       <ul class="flex flex-row items-center gap-6 text-sm font-medium">
-        <li>
+        <li v-if="isTerraWorker">
           <router-link to="/terra" class="text-base-content/70 hover:text-base-content transition-colors">
             Terra
           </router-link>

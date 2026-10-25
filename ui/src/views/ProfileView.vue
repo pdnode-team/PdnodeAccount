@@ -2,6 +2,8 @@
 import Header from "@/components/Header.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import { ClientResponseError, pb } from "@/pb";
+import { unlockAchievement } from "@/utils/easterEgg";
+import { isTerraWorker } from "@/utils/terraAuth";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -18,8 +20,22 @@ const route = useRoute();
 const router = useRouter();
 
 const userId = computed(() => {
+  if (
+    route.path.toLowerCase() === "/@terra" ||
+    route.path.toLowerCase() === "/terra-profile"
+  ) {
+    return "terra";
+  }
   const param = route.params.userid;
   return Array.isArray(param) ? param[0] : param || "";
+});
+
+const isTerraProfile = computed(() => {
+  return (
+    route.path.toLowerCase() === "/@terra" ||
+    route.path.toLowerCase() === "/terra-profile" ||
+    userId.value.toLowerCase() === "terra"
+  );
 });
 
 const loading = ref(true);
@@ -45,6 +61,20 @@ const formattedJoinedDate = computed(() => {
 });
 
 async function fetchUserProfile(id: string) {
+  // Easter egg: /@terra profile
+  if (isTerraProfile.value) {
+    user.value = {
+      id: "terra",
+      name: "Hack Club Terra",
+      created: "2026-10-01T00:00:00.000Z",
+    };
+    loading.value = false;
+    notFound.value = false;
+    document.title = "Hack Club Terra (@terra) | Pdnode Account";
+    unlockAchievement(4);
+    return;
+  }
+
   if (!id) {
     notFound.value = true;
     loading.value = false;
@@ -92,11 +122,12 @@ onMounted(() => {
   fetchUserProfile(userId.value);
 });
 
-watch(userId, (newId) => {
-  if (newId) {
-    fetchUserProfile(newId);
+watch(
+  () => route.path,
+  () => {
+    fetchUserProfile(userId.value);
   }
-});
+);
 </script>
 
 <template>
@@ -134,20 +165,34 @@ watch(userId, (newId) => {
       </div>
 
       <!-- User Profile Card -->
-      <div v-else class="card w-full max-w-lg bg-base-200 shadow-xl overflow-hidden">
+      <div v-else class="card w-full max-w-lg bg-base-200 shadow-xl overflow-hidden"
+        :class="{ 'border-2 border-emerald-500/40': isTerraProfile }">
         <!-- Top decorative banner -->
-        <div class="h-28 w-full relative">
-          <div v-if="isOwnProfile"
-            class="badge badge-accent absolute top-3 right-3 gap-1 shadow-sm font-semibold text-xs">
-            Your Profile
+        <div class="h-32 w-full relative flex items-center justify-center overflow-hidden"
+          :class="isTerraProfile ? 'bg-linear-to-r from-emerald-700 via-teal-800 to-green-900' : 'bg-base-300'">
+          <img v-if="isTerraProfile" src="https://terra.hackclub.com/assets/loginscreen/terra-logo-with-banner-q80.webp"
+            alt="Terra Banner" class="h-20 object-contain drop-shadow-md select-none opacity-90" />
+          <div v-if="isTerraProfile"
+            class="badge badge-success text-white absolute top-3 right-3 gap-1 shadow-sm font-bold text-xs">
+            Terra!
+          </div>
+          <div v-else-if="isOwnProfile" class="flex items-center gap-2 absolute top-3 right-3">
+            <span v-if="isTerraWorker" class="badge badge-success text-white gap-1 shadow-sm font-bold text-xs">
+              Terra Reviewer!
+            </span>
+            <span class="badge badge-accent gap-1 shadow-sm font-semibold text-xs">
+              Your Profile
+            </span>
           </div>
         </div>
 
         <div class="card-body pt-0 relative">
           <!-- Avatar offset -->
           <div class="-mt-14 mb-4 flex items-end justify-between">
-            <div class="avatar ring-4 ring-base-200 rounded-full bg-base-200 shadow-md">
-              <UserAvatar :id="user.id" :name="user.name || user.email || 'User'" :size="88" />
+            <div class="avatar rounded-full shadow-md"
+              :class="isTerraProfile ? 'ring-4 ring-emerald-500 bg-base-100 p-1.5' : 'ring-4 ring-base-200 bg-base-200'">
+              <UserAvatar v-if="isTerraProfile" id="terra" name="Terra" :size="88" />
+              <UserAvatar v-else :id="user.id" :name="user.name || user.email || 'User'" :size="88" />
             </div>
 
             <!-- Share / Copy Profile Button -->
@@ -166,8 +211,13 @@ watch(userId, (newId) => {
             <h1 class="text-2xl font-bold text-base-content flex items-center gap-2">
               {{ user.name || "Anonymous User" }}
             </h1>
-            <p class="text-sm font-mono text-base-content/60">
+            <p class="text-sm font-mono"
+              :class="isTerraProfile ? 'text-emerald-600 font-bold' : 'text-base-content/60'">
               @{{ user.id }}
+            </p>
+            <p v-if="isTerraProfile" class="text-xs text-base-content/80 pt-1 leading-relaxed">
+              🌱 Hack Club Terra is an online programming incentive program ("You Ship, We Ship") designed for youth
+              aged 13–18 worldwide.
             </p>
           </div>
 
@@ -183,19 +233,36 @@ watch(userId, (newId) => {
             </div>
 
             <div class="bg-base-100 p-3 rounded-lg flex flex-col gap-1">
-              <span class="text-xs text-base-content/60 font-medium">Email</span>
+              <span class="text-xs text-base-content/60 font-medium">
+                {{ isTerraProfile ? "Program" : "Email" }}
+              </span>
               <span class="font-semibold text-base-content truncate">
-                {{
-                  isOwnProfile || user.emailVisibility
-                    ? user.email || "No email visible"
-                    : "Hidden by user"
-                }}
+                <template v-if="isTerraProfile">
+                  Hack Club YSWS (Week 1)
+                </template>
+                <template v-else>
+                  {{
+                    isOwnProfile || user.emailVisibility
+                      ? user.email || "No email visible"
+                      : "Hidden by user"
+                  }}
+                </template>
+              </span>
+            </div>
+
+            <div v-if="isTerraProfile" class="bg-base-100 p-3 rounded-lg flex flex-col gap-1 sm:col-span-2">
+              <span class="text-xs text-base-content/60 font-medium">Achievement Status</span>
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                Haha, found the Easter egg!
               </span>
             </div>
           </div>
 
           <!-- Footer Action -->
-          <div class="card-actions justify-end mt-6">
+          <div class="card-actions justify-end items-center gap-2 mt-6">
+            <router-link v-if="isTerraProfile" to="/terra" class="btn btn-outline btn-success btn-sm">
+              About Terra
+            </router-link>
             <button class="btn btn-ghost btn-sm" @click="router.push('/')">
               Back to Home
             </button>

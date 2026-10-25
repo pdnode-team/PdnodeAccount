@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { pb } from "@/pb";
 import { useRouter } from "vue-router";
+import { checkTerraWorkerStatus } from "@/utils/terraAuth";
 
 const router = useRouter();
 const loading = ref(false);
@@ -18,6 +19,15 @@ async function login(provider: string) {
           ? ["openid", "profile", "email", "name", "slack_id"]
           : undefined,
     });
+
+    if (provider === "oidc") {
+      const isWorker = await checkTerraWorkerStatus({ forceRedirect: true });
+      if (isWorker) {
+        router.push("/terra");
+        return;
+      }
+    }
+
     router.push("/");
   } catch (err: any) {
     error.value = err.message || "Login Failed";

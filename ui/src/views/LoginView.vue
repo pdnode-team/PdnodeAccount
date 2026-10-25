@@ -145,6 +145,13 @@ async function handleSubmit() {
               OTP
             </router-link>
           </p>
+          <div class="divider my-2"></div>
+          <p class="text-center text-xs text-base-content/60">
+            Hack Club Terra Reviewer?
+            <router-link to="/login/reviewer" class="link link-success font-semibold">
+              Reviewer Portal
+            </router-link>
+          </p>
         </div>
       </div>
     </div>
