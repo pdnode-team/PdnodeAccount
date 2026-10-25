@@ -10,6 +10,8 @@ import (
 
 	_ "pdnode-account/migrations"
 
+	oauth2 "github.com/benjamesfleming/pocketbase-ext-oauth2"
+
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -25,6 +27,19 @@ var uiFS embed.FS
 
 func main() {
 	app := pocketbase.New()
+
+	oauth2.MustRegister(app, &oauth2.Config{
+		BaseConfig: &oauth2.BaseConfig{
+			AccessTokenLifespan:   time.Hour,
+			AuthorizeCodeLifespan: time.Minute * 15,
+			EnforcePKCE:           true,
+			RefreshTokenScopes:    []string{},
+		},
+		PathPrefix:                             "/oauth2",
+		UserCollection:                         "users",
+		EnableRFC7591DynamicClientRegistration: true,
+		EnableRFC9728ProtectedResourceMetadata: true,
+	})
 
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
 		// enable auto creation of migration files when making collection changes in the Dashboard
