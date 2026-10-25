@@ -21,6 +21,11 @@ const router = createRouter({
       name: 'delete-account',
       component: () => import('@/views/DeleteAccount.vue')
     },
+    {
+      path: '/confirm-delete',
+      name: 'confirm-delete',
+      component: () => import('@/views/ConfirmDelete.vue')
+    },
   ],
 })
 

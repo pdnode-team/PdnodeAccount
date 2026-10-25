@@ -48,38 +48,21 @@ async function submit() {
       <div class="flex justify-center items-center flex-col relative top-10">
         <h1 class="text-4xl font-bold">Delete Your Account</h1>
         <div role="alert" class="alert alert-warning alert-soft mt-4">
-          <span class="text-center"
-            >Once you delete your account, it will be permanently (soft)
+          <span class="text-center">Once you delete your account, it will be permanently (soft)
             deleted! <br />
             You cannot recover it through normal means. <br />Your data will be
             retained but anonymized; it will not be automatically deleted from
             other sub-products. Please delete it manually or email
-            bret@pdnode.com. <br /><b class="font-bold"
-              >To continue, please enter your password.</b
-            ></span
-          >
+            bret@pdnode.com. <br /><b class="font-bold">To continue, please enter your password.</b></span>
         </div>
         <fieldset class="fieldset flex">
           <legend class="fieldset-legend">Password</legend>
-          <input
-            type="password"
-            class="input"
-            placeholder="Type here"
-            v-model="password"
-          />
-          <button
-            class="btn btn-error btn-soft"
-            :disabled="disable"
-            @click="submit"
-          >
+          <input type="password" class="input" placeholder="Type here" v-model="password" />
+          <button class="btn btn-error btn-soft" :disabled="disable" @click="submit">
             {{ disable ? "Please read the instruction" : "I understand" }}
           </button>
         </fieldset>
-        <div
-          v-if="message"
-          role="alert"
-          class="alert alert-info alert-soft mt-4"
-        >
+        <div v-if="message" role="alert" class="alert alert-info alert-soft mt-4">
           <span class="text-center">{{ message }}</span>
         </div>
       </div>
