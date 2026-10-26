@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { pb, ClientResponseError } from "@/pb";
 import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import type { RecordModel } from "pocketbase";
 import OAuthCard from "./OauthCard.vue";
 // TODO: Add info message when updated
 
 const router = useRouter();
+const route = useRoute();
 
 const props = defineProps<{
   open: boolean;
@@ -134,12 +135,20 @@ async function save() {
 }
 
 function close() {
-  router.push("/");
   emit("update:open", false);
+  if (route.path === "/settings") {
+    router.push("/");
+  }
 }
 </script>
 <template>
-  <dialog id="settings_modal" class="modal" :class="{ 'modal-open': open }">
+  <dialog
+    id="settings_modal"
+    class="modal"
+    :class="{ 'modal-open': open }"
+    @cancel.prevent="close"
+    @close="close"
+  >
     <div class="modal-box max-h-[calc(100vh-5rem)]">
       <h3 class="text-lg font-bold">Settings</h3>
       <div class="flex flex-col">
