@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { pb, ClientResponseError } from "@/pb";
+import { ClientResponseError, pb } from "@/pb";
+import type { RecordModel } from "pocketbase";
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { RecordModel } from "pocketbase";
 import OAuthCard from "./OauthCard.vue";
 // TODO: Add info message when updated
 
@@ -32,6 +32,154 @@ const error = ref<string>("");
 
 const externalAuths = ref<RecordModel[]>([]);
 
+// 2FA state
+const mfaEnabled = ref<boolean>(false);
+const mfaStep = ref<"idle" | "enable_verify" | "disable_verify">("idle");
+const mfaCode = ref<string>("");
+const mfaOtpId = ref<string>("");
+const mfaLoading = ref<boolean>(false);
+const mfaError = ref<string>("");
+const mfaResendCooldown = ref<number>(0);
+let mfaCooldownTimer: ReturnType<typeof setInterval> | null = null;
+
+function startCooldown() {
+  mfaResendCooldown.value = 60;
+  if (mfaCooldownTimer) clearInterval(mfaCooldownTimer);
+  mfaCooldownTimer = setInterval(() => {
+    if (mfaResendCooldown.value > 0) {
+      mfaResendCooldown.value--;
+    } else if (mfaCooldownTimer) {
+      clearInterval(mfaCooldownTimer);
+      mfaCooldownTimer = null;
+    }
+  }, 1000);
+}
+
+function cancelMfaStep() {
+  mfaStep.value = "idle";
+  mfaCode.value = "";
+  mfaError.value = "";
+  if (mfaCooldownTimer) {
+    clearInterval(mfaCooldownTimer);
+    mfaCooldownTimer = null;
+  }
+}
+
+async function startEnableMfa() {
+  const user = pb.authStore.record;
+  if (!user?.email) return;
+
+  mfaLoading.value = true;
+  mfaError.value = "";
+  mfaCode.value = "";
+
+  try {
+    const res = await pb.collection("users").requestOTP(user.email);
+    mfaOtpId.value = res.otpId;
+    mfaStep.value = "enable_verify";
+    startCooldown();
+  } catch (err: unknown) {
+    if (err instanceof ClientResponseError) {
+      mfaError.value = err.message || "Failed to send verification code.";
+    } else {
+      mfaError.value = "Network error";
+    }
+  } finally {
+    mfaLoading.value = false;
+  }
+}
+
+async function startDisableMfa() {
+  const user = pb.authStore.record;
+  if (!user?.email) return;
+
+  mfaLoading.value = true;
+  mfaError.value = "";
+  mfaCode.value = "";
+
+  try {
+    const res = await pb.collection("users").requestOTP(user.email);
+    mfaOtpId.value = res.otpId;
+    mfaStep.value = "disable_verify";
+    startCooldown();
+  } catch (err: unknown) {
+    if (err instanceof ClientResponseError) {
+      mfaError.value = err.message || "Failed to send verification code.";
+    } else {
+      mfaError.value = "Network error";
+    }
+  } finally {
+    mfaLoading.value = false;
+  }
+}
+
+async function resendMfaOtp() {
+  const user = pb.authStore.record;
+  if (!user?.email || mfaResendCooldown.value > 0) return;
+
+  mfaLoading.value = true;
+  mfaError.value = "";
+
+  try {
+    const res = await pb.collection("users").requestOTP(user.email);
+    mfaOtpId.value = res.otpId;
+    startCooldown();
+  } catch (err: unknown) {
+    if (err instanceof ClientResponseError) {
+      mfaError.value = err.message || "Failed to resend code.";
+    } else {
+      mfaError.value = "Network error";
+    }
+  } finally {
+    mfaLoading.value = false;
+  }
+}
+
+async function confirmMfa() {
+  const user = pb.authStore.record;
+  const code = mfaCode.value.replace(/[\s-]/g, "").trim();
+  if (!user?.id || !mfaOtpId.value || !code) {
+    mfaError.value = "Please enter the verification code.";
+    return;
+  }
+
+  mfaLoading.value = true;
+  mfaError.value = "";
+
+  try {
+    // Verify OTP first using authWithOTP
+    await pb.collection("users").authWithOTP(mfaOtpId.value, code);
+
+    // Update mfa_enabled field
+    const targetStatus = mfaStep.value === "enable_verify";
+    await pb.collection("users").update(user.id, {
+      mfa_enabled: targetStatus,
+    });
+
+    if (pb.authStore.record) {
+      (pb.authStore.record as any).mfa_enabled = targetStatus;
+    }
+    mfaEnabled.value = targetStatus;
+    cancelMfaStep();
+    info.value = targetStatus
+      ? "Two-Factor Authentication has been enabled."
+      : "Two-Factor Authentication has been disabled.";
+  } catch (err: unknown) {
+    if (err instanceof ClientResponseError) {
+      if (err.message?.toLowerCase().includes("invalid or expired otp") || err.status === 400) {
+        mfaError.value =
+          "Invalid or expired verification code. If you requested a code multiple times, please ensure you use the latest email received.";
+      } else {
+        mfaError.value = err.message || "Failed to verify code.";
+      }
+    } else {
+      mfaError.value = "Failed to verify code.";
+    }
+  } finally {
+    mfaLoading.value = false;
+  }
+}
+
 watch(
   () => props.open,
   async (isOpen) => {
@@ -39,6 +187,8 @@ watch(
       const user = pb.authStore.record;
       nickname.value = user?.name || "";
       email.value = user?.email || "";
+      mfaEnabled.value = !!(user as any)?.mfa_enabled;
+      cancelMfaStep();
       externalAuths.value = await pb.collection("_externalAuths").getFullList({
         filter: `recordRef = "${user?.id}"`,
       });
@@ -135,6 +285,7 @@ async function save() {
 }
 
 function close() {
+  cancelMfaStep();
   emit("update:open", false);
   if (route.path === "/settings") {
     router.push("/");
@@ -142,13 +293,7 @@ function close() {
 }
 </script>
 <template>
-  <dialog
-    id="settings_modal"
-    class="modal"
-    :class="{ 'modal-open': open }"
-    @cancel.prevent="close"
-    @close="close"
-  >
+  <dialog id="settings_modal" class="modal" :class="{ 'modal-open': open }" @cancel.prevent="close" @close="close">
     <div class="modal-box max-h-[calc(100vh-5rem)]">
       <h3 class="text-lg font-bold">Settings</h3>
       <div class="flex flex-col">
@@ -179,6 +324,79 @@ function close() {
             Delete your account
           </button>
         </template>
+      </div>
+
+      <!-- Two-Factor Authentication (2FA) -->
+      <div class="divider my-4"></div>
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold">Two-Factor Authentication (2FA)</span>
+              <span class="badge badge-sm font-semibold" :class="mfaEnabled ? 'badge-success' : 'badge-neutral'">
+                {{ mfaEnabled ? "Enabled" : "Disabled" }}
+              </span>
+            </div>
+            <p class="text-xs text-base-content/70 mt-0.5">
+              Secure your account by requiring an email verification code (OTP) at login.
+            </p>
+          </div>
+        </div>
+
+        <!-- Idle State Actions -->
+        <div v-if="mfaStep === 'idle'" class="mt-1">
+          <button v-if="!mfaEnabled" type="button" class="btn btn-outline btn-primary btn-sm gap-2"
+            :disabled="mfaLoading" @click="startEnableMfa">
+            <span v-if="mfaLoading" class="loading loading-spinner loading-xs"></span>
+            <span>Enable 2FA</span>
+          </button>
+          <button v-else type="button" class="btn btn-outline btn-warning btn-sm gap-2" :disabled="mfaLoading"
+            @click="startDisableMfa">
+            <span v-if="mfaLoading" class="loading loading-spinner loading-xs"></span>
+            <span>Disable 2FA</span>
+          </button>
+        </div>
+
+        <!-- Verification Step (Enabling or Disabling) -->
+        <div v-else class="bg-base-300/40 p-4 rounded-lg border border-base-300 flex flex-col gap-3 mt-1">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold">
+                {{ mfaStep === 'enable_verify' ? 'Confirm 2FA Activation' : 'Confirm 2FA Deactivation' }}
+              </p>
+              <p class="text-xs text-base-content/70 mt-0.5">
+                Enter the 8-digit verification code sent to
+                <span class="font-medium text-base-content">{{ email }}</span>
+              </p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs btn-circle" @click="cancelMfaStep">
+              ✕
+            </button>
+          </div>
+
+          <div class="flex gap-2 items-center">
+            <input v-model.trim="mfaCode" type="text" maxlength="8" placeholder="00000000"
+              class="input input-bordered flex-1 font-mono text-center tracking-wider text-base"
+              @keyup.enter="confirmMfa" />
+            <button type="button" class="btn btn-primary" :disabled="mfaLoading || mfaCode.length < 8"
+              @click="confirmMfa">
+              <span v-if="mfaLoading" class="loading loading-spinner loading-xs"></span>
+              {{ mfaStep === 'enable_verify' ? 'Verify & Enable' : 'Confirm & Disable' }}
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <button type="button" class="link link-primary" :disabled="mfaLoading || mfaResendCooldown > 0"
+              @click="resendMfaOtp">
+              {{ mfaResendCooldown > 0 ? `Resend code in ${mfaResendCooldown}s` : 'Resend verification code' }}
+            </button>
+            <button type="button" class="link text-base-content/60" @click="cancelMfaStep">
+              Cancel
+            </button>
+          </div>
+
+          <p v-if="mfaError" class="text-xs text-error mt-1">{{ mfaError }}</p>
+        </div>
       </div>
       <div class="flex flex-col gap-1 mt-4" v-if="externalAuths.length > 0">
         <p class="font-bold">OAuth</p>

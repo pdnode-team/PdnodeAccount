@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { pb } from "@/pb";
+import { pb, ClientResponseError } from "@/pb";
 import { useRouter } from "vue-router";
 import { checkTerraWorkerStatus } from "@/utils/terraAuth";
+
+const emit = defineEmits<{
+  (e: "mfa", payload: { mfaId: string; provider: string }): void;
+}>();
 
 const router = useRouter();
 const loading = ref(false);
@@ -30,9 +34,20 @@ async function login(provider: string) {
 
     router.push("/");
   } catch (err: any) {
+    if (
+      err instanceof ClientResponseError &&
+      err.status === 401 &&
+      (err.response?.mfaId || err.data?.mfaId)
+    ) {
+      emit("mfa", {
+        mfaId: (err.response?.mfaId || err.data?.mfaId) as string,
+        provider,
+      });
+      return;
+    }
     error.value = err.message || "Login Failed";
-    if (err.message.includes("doesn't satisfy the collection requirements")) {
-      error.value = "This account has been deleted and cannot be used to log in."
+    if (err.message && err.message.includes("doesn't satisfy the collection requirements")) {
+      error.value = "This account has been deleted and cannot be used to log in.";
     }
   } finally {
     loading.value = false;

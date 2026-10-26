@@ -7,10 +7,9 @@ export const isVerifying = ref<boolean>(false);
 export const showTerraWelcomeModal = ref<boolean>(false);
 export const currentSlackId = ref<string | null>(null);
 
-let verifiedOnce = false;
-
 export async function checkTerraWorkerStatus(options?: {
   forceRedirect?: boolean;
+  showModal?: boolean;
   onSuccess?: () => void;
 }): Promise<boolean> {
   if (!pb.authStore.isValid || !pb.authStore.record) {
@@ -48,12 +47,11 @@ export async function checkTerraWorkerStatus(options?: {
       isTerraWorker.value = allowed;
 
       if (allowed) {
-        if (!verifiedOnce || options?.forceRedirect) {
-          verifiedOnce = true;
+        if (options?.showModal) {
           showTerraWelcomeModal.value = true;
-          if (options?.onSuccess) {
-            options.onSuccess();
-          }
+        }
+        if (options?.onSuccess) {
+          options.onSuccess();
         }
         return true;
       }

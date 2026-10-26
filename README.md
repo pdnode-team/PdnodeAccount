@@ -13,9 +13,9 @@ So, I’ve migrated from Fresh to Go (Pocketbase) and Vue. If you need the previ
   - [x] Github
   - [x] Discord
   - [x] HackClub
-- [ ] MFA / 2FA
+- [x] MFA / 2FA
 - [ ] Admin / Mod Panel
-- [ ] User Lifecycle
+- [x] User Lifecycle
 - [x] Profile Page
   - [x] Change
 - [x] Oauth IDP --- Working
