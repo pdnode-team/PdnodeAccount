@@ -34,7 +34,7 @@ const externalAuths = ref<RecordModel[]>([]);
 
 // 2FA state
 const mfaEnabled = ref<boolean>(false);
-const mfaStep = ref<"idle" | "enable_verify" | "disable_verify">("idle");
+const mfaStep = ref<"idle" | "enable_verify" | "confirm_disable">("idle");
 const mfaCode = ref<string>("");
 const mfaOtpId = ref<string>("");
 const mfaLoading = ref<boolean>(false);
@@ -89,24 +89,34 @@ async function startEnableMfa() {
   }
 }
 
-async function startDisableMfa() {
+function startDisableMfa() {
+  mfaStep.value = "confirm_disable";
+  mfaError.value = "";
+}
+
+async function disableMfa() {
   const user = pb.authStore.record;
-  if (!user?.email) return;
+  if (!user?.id) return;
 
   mfaLoading.value = true;
   mfaError.value = "";
-  mfaCode.value = "";
 
   try {
-    const res = await pb.collection("users").requestOTP(user.email);
-    mfaOtpId.value = res.otpId;
-    mfaStep.value = "disable_verify";
-    startCooldown();
+    await pb.collection("users").update(user.id, {
+      mfa_enabled: false,
+    });
+
+    if (pb.authStore.record) {
+      (pb.authStore.record as any).mfa_enabled = false;
+    }
+    mfaEnabled.value = false;
+    cancelMfaStep();
+    info.value = "Two-Factor Authentication has been disabled.";
   } catch (err: unknown) {
     if (err instanceof ClientResponseError) {
-      mfaError.value = err.message || "Failed to send verification code.";
+      mfaError.value = err.message || "Failed to disable 2FA.";
     } else {
-      mfaError.value = "Network error";
+      mfaError.value = "Failed to disable 2FA.";
     }
   } finally {
     mfaLoading.value = false;
@@ -147,23 +157,20 @@ async function confirmMfa() {
   mfaError.value = "";
 
   try {
-    // Verify OTP first using authWithOTP
+    // Verify OTP first using authWithOTP (succeeds because mfa_enabled is false)
     await pb.collection("users").authWithOTP(mfaOtpId.value, code);
 
     // Update mfa_enabled field
-    const targetStatus = mfaStep.value === "enable_verify";
     await pb.collection("users").update(user.id, {
-      mfa_enabled: targetStatus,
+      mfa_enabled: true,
     });
 
     if (pb.authStore.record) {
-      (pb.authStore.record as any).mfa_enabled = targetStatus;
+      (pb.authStore.record as any).mfa_enabled = true;
     }
-    mfaEnabled.value = targetStatus;
+    mfaEnabled.value = true;
     cancelMfaStep();
-    info.value = targetStatus
-      ? "Two-Factor Authentication has been enabled."
-      : "Two-Factor Authentication has been disabled.";
+    info.value = "Two-Factor Authentication has been enabled.";
   } catch (err: unknown) {
     if (err instanceof ClientResponseError) {
       if (err.message?.toLowerCase().includes("invalid or expired otp") || err.status === 400) {
@@ -357,13 +364,11 @@ function close() {
           </button>
         </div>
 
-        <!-- Verification Step (Enabling or Disabling) -->
-        <div v-else class="bg-base-300/40 p-4 rounded-lg border border-base-300 flex flex-col gap-3 mt-1">
+        <!-- Verification Step for Enabling 2FA -->
+        <div v-else-if="mfaStep === 'enable_verify'" class="bg-base-300/40 p-4 rounded-lg border border-base-300 flex flex-col gap-3 mt-1">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-sm font-semibold">
-                {{ mfaStep === 'enable_verify' ? 'Confirm 2FA Activation' : 'Confirm 2FA Deactivation' }}
-              </p>
+              <p class="text-sm font-semibold">Confirm 2FA Activation</p>
               <p class="text-xs text-base-content/70 mt-0.5">
                 Enter the 8-digit verification code sent to
                 <span class="font-medium text-base-content">{{ email }}</span>
@@ -381,7 +386,7 @@ function close() {
             <button type="button" class="btn btn-primary" :disabled="mfaLoading || mfaCode.length < 8"
               @click="confirmMfa">
               <span v-if="mfaLoading" class="loading loading-spinner loading-xs"></span>
-              {{ mfaStep === 'enable_verify' ? 'Verify & Enable' : 'Confirm & Disable' }}
+              Verify & Enable
             </button>
           </div>
 
@@ -392,6 +397,35 @@ function close() {
             </button>
             <button type="button" class="link text-base-content/60" @click="cancelMfaStep">
               Cancel
+            </button>
+          </div>
+
+          <p v-if="mfaError" class="text-xs text-error mt-1">{{ mfaError }}</p>
+        </div>
+
+        <!-- Confirm Disable 2FA Prompt -->
+        <div v-else-if="mfaStep === 'confirm_disable'" class="bg-base-300/40 p-4 rounded-lg border border-warning/30 flex flex-col gap-3 mt-1">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold text-warning">
+                Disable Two-Factor Authentication?
+              </p>
+              <p class="text-xs text-base-content/70 mt-1 leading-relaxed">
+                Your account will no longer require an email verification code at login.
+              </p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-xs btn-circle" @click="cancelMfaStep">
+              ✕
+            </button>
+          </div>
+
+          <div class="flex gap-2 justify-end items-center pt-1">
+            <button type="button" class="btn btn-sm btn-ghost" @click="cancelMfaStep">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-sm btn-warning" :disabled="mfaLoading" @click="disableMfa">
+              <span v-if="mfaLoading" class="loading loading-spinner loading-xs"></span>
+              Yes, Disable 2FA
             </button>
           </div>
 
