@@ -84,7 +84,7 @@ async function handleReviewerLogin() {
       <div class="card w-full max-w-md bg-base-200/90 shadow-2xl border-2 border-emerald-500/30 overflow-hidden">
         <!-- Top Banner -->
         <div
-          class="bg-gradient-to-r from-emerald-600 via-teal-700 to-green-800 p-6 flex flex-col items-center justify-center text-white text-center relative">
+          class="bg-linear-to-r from-emerald-600 via-teal-700 to-green-800 p-6 flex flex-col items-center justify-center text-white text-center relative">
           <img src="https://terra.hackclub.com/assets/loginscreen/terra-logo-with-banner-q80.webp" alt="Terra"
             class="h-14 object-contain mb-2 drop-shadow-md" />
           <h2 class="text-2xl font-black tracking-wide">

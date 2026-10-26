@@ -23,7 +23,7 @@ function closeModal() {
       <div class="card-body p-6 flex flex-col gap-4 text-center">
         <p class="text-sm text-base-content/80 leading-relaxed">
           Detected that you have logged in via Hack Club OAuth and have been authenticated by a Cloudflare Worker as
-          <span class="font-bold text-emerald-600">Terra Reviewer</span>！
+          <span class="font-bold text-emerald-600">Terra Reviewer</span>!
         </p>
 
         <div v-if="currentSlackId"

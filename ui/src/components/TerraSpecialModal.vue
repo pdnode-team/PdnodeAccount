@@ -6,7 +6,7 @@ function closeModal() {
 }
 
 function handleReset() {
-  if (confirm("确定要重置所有彩蛋进度并重新体验吗？")) {
+  if (confirm("Are you sure you want to reset all Easter egg progress?")) {
     resetAchievements();
   }
 }

@@ -87,7 +87,7 @@ function openRewardModal() {
                   <span class="font-bold text-sm truncate">{{ ach.title }}</span>
                   <span v-if="easterEggState.unlockedIds.includes(ach.id)"
                     class="badge badge-success badge-xs text-white">
-                    Unclocked
+                    Unlocked
                   </span>
                 </div>
                 <span class="text-xs text-base-content/60 truncate mt-0.5">
@@ -100,8 +100,6 @@ function openRewardModal() {
           <div v-if="easterEggState.unlockedIds.includes(5)"
             class="mt-4 p-3 rounded-lg bg-warning/10 border border-warning/30 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <img src="/easteregg/achievement-5.png" class="w-8 h-8 object-contain"
-                style="image-rendering: pixelated;" />
               <div>
                 <div class="font-bold text-sm text-warning-content">
                   Terra Traveler!
